@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom'
 export default function Welcome() {
   return (
     <>
-      <div className="flex flex-col items-center justify-center relative">
+      <div className="flex flex-col items-center justify-center relative h-full">
         <h1 className="text-6xl">
           <Typewriter
-            words={['Welcome To', 'Linea']}
+            words={['Welcome To', `Linea`]}
             typeSpeed={71}
             deleteSpeed={50}
             delaySpeed={1000}
@@ -28,27 +28,51 @@ export default function Welcome() {
           }}
           transition={{
             duration: 1, // seconds, not ms
-            delay: 2.7, // delay in seconds
+            delay: 2.9, // delay in seconds
           }}
-          className="text-lg font-light"
+          className="text-lg font-light mt-1"
         >
-          Get your Font's a <span className="font-semibold">Easy</span> ||{' '}
+          Find your Font's a <span className="font-semibold">Easy</span> ||{' '}
           <span className="font-semibold">Fast</span> &&{' '}
           <span className="font-semibold">Categories</span> Way
         </motion.h3>
-        <div className="flex items-center gap-5 mt-5">
+        <motion.div
+          initial={{
+            y: 20, // small offset so it animates in
+            opacity: 0,
+          }}
+          animate={{
+            y: 0,
+            opacity: 1,
+          }}
+          transition={{
+            duration: 1, // seconds, not ms
+            delay: 3.1, // delay in seconds
+          }}
+          className="flex items-center gap-5 mt-5"
+        >
           <Link to={'/fonts'}>
-            <Button variant="secondary" size="sm" className="px-5!">
-              Explore Now
-            </Button>
+            <Button variant="secondary">Explore Now</Button>
           </Link>
           <Link to={'/about'}>
-            <Button variant="ghost" size="sm">
-              About Page
-            </Button>
+            <Button variant="ghost">About Page</Button>
           </Link>
-        </div>
-        <div className="flex items-center gap-1.5 absolute bottom-7 right-15">
+        </motion.div>
+        <motion.div
+          initial={{
+            y: 20, // small offset so it animates in
+            opacity: 0,
+          }}
+          animate={{
+            y: 0,
+            opacity: 1,
+          }}
+          transition={{
+            duration: 1, // seconds, not ms
+            delay: 3.3, // delay in seconds
+          }}
+          className="flex items-center gap-2 absolute bottom-7 right-15"
+        >
           <Link to={'https://github.com/dev-sajjadhosan'}>
             <TooltipBtn label="Github" icon={<Github />} />
           </Link>
@@ -58,7 +82,7 @@ export default function Welcome() {
           <Link to={'https://mohammadsajjadhosan.vercel.app'}>
             <TooltipBtn label="Dev Profile" icon={<UserStar />} />
           </Link>
-        </div>
+        </motion.div>
       </div>
     </>
   )
