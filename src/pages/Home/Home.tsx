@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { CaseSensitive } from 'lucide-react'
+import { CaseSensitive, PlayCircle } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Home() {
@@ -14,8 +14,10 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div className="flex flex-col items-center justify-evenly min-h-full">
-        <div></div>
+      <div className="flex flex-col items-center justify-between h-full">
+        <div className="mt-24">
+          <img src="/public/favicon.png" width={160} alt="" />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -58,14 +60,26 @@ export default function Home() {
           >
             <Button className="" variant="secondary">
               Explore Fonts
-              <CaseSensitive className="mt-1" />
+              <CaseSensitive />
             </Button>
             {/* <Button className="" variant="secondary">
               Ai Filter
             </Button> */}
           </motion.div>
         </motion.div>
-        <div className="w-11/12 mx-auto">
+        <div className="w-11/12 mx-auto mt-32">
+          <h3 className="text-4xl text-center">How it works</h3>
+          <div className="mt-7 md:w-2xl h-[21rem] rounded-2xl border border-zinc-700 mx-auto relative">
+            <video src="./Home.tsx" className="w-full h-full" />
+            <PlayCircle
+              size={60}
+              strokeWidth={1}
+              className="absolute top-1/2 left-1/2 -translate-1/2 duration-150 active:scale-95 cursor-pointer"
+            />
+          </div>
+        </div>
+        <div className="w-11/12 mx-auto mt-32">
+          <h3 className="text-4xl text-center">Popular Fonts</h3>
           <div className="flex items-center justify-end gap-1.5">
             {len?.map((_, i) => (
               <span

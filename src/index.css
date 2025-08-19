@@ -4,12 +4,14 @@
 
 @theme {
   --font-incon: 'Inconsolata', monospace;
-  --font-inter: "Inter", sans-serif;
+  --font-inter: 'Inter', sans-serif;
   --font-gor: 'Gorditas', serif;
 }
 
 body {
   font-family: 'Inconsolata', monospace;
+  @apply bg-primary;
+  @apply text-primary-foreground
 }
 
 @custom-variant dark (&:is(.dark *));

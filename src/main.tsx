@@ -35,8 +35,8 @@ const routes = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Toaster richColors />
-    <div className="flex items-center justify-center h-screen bg-[#313131] overflow-hidden">
-      <div className="bg-primary text-primary-foreground rounded-2xl h-11/12 w-11/12">
+    <div className="flex items-center justify-center h-screen">
+      <div className="w-11/12 h-full">
         <RouterProvider router={routes} />
       </div>
     </div>

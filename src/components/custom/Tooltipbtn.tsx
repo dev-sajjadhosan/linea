@@ -19,6 +19,8 @@ type TooltipBtnProps = {
     | 'ghost'
     | 'link'
   size?: 'sm' | 'lg' | 'icon'
+  action?: () => void
+  disable?: boolean | undefined
 }
 
 export default function TooltipBtn({
@@ -28,11 +30,18 @@ export default function TooltipBtn({
   side = 'top',
   variant = 'ghost',
   size = 'icon',
+  action,
+  disable,
 }: TooltipBtnProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant={variant} size={size}>
+        <Button
+          variant={variant}
+          size={size}
+          onClick={action}
+          disabled={disable}
+        >
           {icon}
         </Button>
       </TooltipTrigger>
