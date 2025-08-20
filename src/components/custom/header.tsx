@@ -30,7 +30,7 @@ export default function Header() {
   const IsPath = (path: string) => useLocation().pathname === path.toLowerCase()
   return (
     <>
-      <header className="sticky top-5 flex items-center justify-between md:w-5xl px-5 py-2  rounded-md mx-auto mt-2 bg-primary">
+      <header className="sticky top-5 flex items-center justify-between md:w-5xl px-5 py-2  rounded-md mx-auto mt-2">
         <div className="flex items-center gap-1">
           <img src="/public/favicon.png" width={23} alt="" />
           <h1 className="text-lg font-gor">Linea</h1>
@@ -41,7 +41,7 @@ export default function Header() {
               <li
                 key={i}
                 className={`${
-                  IsPath(l?.path) ? 'text-secondary' : 'text-zinc-500'
+                  IsPath(l?.path) ? 'text-primary' : 'text-zinc-400'
                 } font-medium text-sm`}
               >
                 <Link to={l?.path}>{l?.label}</Link>

@@ -16,7 +16,7 @@ export default function Setting() {
         <DialogTrigger>
           <TooltipBtn label="Setting" icon={<Settings2 />} />
         </DialogTrigger>
-        <DialogContent className="bg-primary text-primary-foreground border-0 [&>button]:hidden">
+        <DialogContent className="p-9 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>Hey there,</DialogTitle>
             <DialogDescription>

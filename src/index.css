@@ -10,8 +10,7 @@
 
 body {
   font-family: 'Inconsolata', monospace;
-  @apply bg-primary;
-  @apply text-primary-foreground
+
 }
 
 @custom-variant dark (&:is(.dark *));
