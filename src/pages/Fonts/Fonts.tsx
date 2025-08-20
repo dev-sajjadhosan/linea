@@ -41,11 +41,11 @@ export default function Fonts() {
   const [lay, setLay] = useState<'default' | 'grid'>('default')
   const [isOption, setIsOption] = useState(true)
   const [text, setText] = useState(
-    'abcdefghijklmnopqrstuvwxyz || ABCDEFGHIJKLMNOPQRSTUVWXYZ || 012345678910 ',
+    'Dream big, work hard, stay focused, embrace challenges, and turn your vision into reality with passion, persistence, and purpose.',
   )
   const [fontSize, setFontSize] = useState(32)
   const [fontWeight, setFontWeight] = useState(400)
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState<string | null>('all')
   const [textType, setTextType] = useState<
     'def' | 'par' | 'let_num' | 'sym' | 'cus'
   >('def')
@@ -461,26 +461,31 @@ export default function Fonts() {
             </h3>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat, i) => {
-  // Check if this category is currently active and has no data
-  const isEmptyAfterClick =
-    activeCategory === cat && filteredData.length === 0;
+                // Check if this category is currently active and has no data
+                const isEmptyAfterClick =
+                  activeCategory === cat && filteredData.length === 0
 
-  return (
-    <Badge
-      key={i}
-      onClick={() =>
-        setActiveCategory(activeCategory === cat ? null : cat)
-      }
-      variant={ isEmptyAfterClick ? 'secondary' : activeCategory === cat ? 'default' : 'outline'}
-      className={`cursor-pointer transition-colors px-3 py-1 ${
-        isEmptyAfterClick ? 'text-red-500 border-red-500' : ''
-      }`}
-    >
-      {cat}
-    </Badge>
-  );
-})}
-
+                return (
+                  <Badge
+                    key={i}
+                    onClick={() =>
+                      setActiveCategory(activeCategory === cat ? null : cat)
+                    }
+                    variant={
+                      isEmptyAfterClick
+                        ? 'secondary'
+                        : activeCategory === cat
+                        ? 'default'
+                        : 'outline'
+                    }
+                    className={`cursor-pointer transition-colors px-3 py-1 ${
+                      isEmptyAfterClick ? 'text-red-500 border-red-500' : ''
+                    }`}
+                  >
+                    {cat}
+                  </Badge>
+                )
+              })}
             </div>
           </Card>
         </div>

@@ -19,7 +19,7 @@ export default function Welcome() {
         </h1>
         <motion.h3
           initial={{
-            y: 20, // small offset so it animates in
+            y: 20, // small offset for animation
             opacity: 0,
           }}
           animate={{
@@ -27,15 +27,17 @@ export default function Welcome() {
             opacity: 1,
           }}
           transition={{
-            duration: 1, // seconds, not ms
+            duration: 1, // seconds
             delay: 2.9, // delay in seconds
           }}
-          className="text-lg font-light mt-1"
+          className="text-lg font-light mt-1 text-center"
         >
-          Find your Font's a <span className="font-semibold">Easy</span> ||{' '}
-          <span className="font-semibold">Fast</span> &&{' '}
-          <span className="font-semibold">Categories</span> Way
+          Discover the perfect font for every project—
+          <span className="font-semibold"> fast</span>,{' '}
+          <span className="font-semibold">simple</span>, and{' '}
+          <span className="font-semibold">organized</span>.
         </motion.h3>
+
         <motion.div
           initial={{
             y: 20, // small offset so it animates in
@@ -52,7 +54,7 @@ export default function Welcome() {
           className="flex items-center gap-5 mt-5"
         >
           <Link to={'/fonts'}>
-            <Button variant="secondary">Explore Now</Button>
+            <Button variant="default">Explore Now</Button>
           </Link>
           <Link to={'/about'}>
             <Button variant="ghost">About Page</Button>
