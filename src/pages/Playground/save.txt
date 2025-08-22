@@ -1,0 +1,134 @@
+<Card className="fixed bottom-7 left-0 right-0 p-3 w-[1100px] max-w-[92vw] mx-auto rounded-xl flex-row items-center justify-between backdrop-blur supports-[backdrop-filter]:bg-background/70">
+        <div className="flex items-center justify-between w-full">
+          {/* Left: selection & text editing */}
+          <div className="flex items-center gap-2">
+            <TooltipBtn
+              label={selectMode ? 'Exit Select' : 'Select Text'}
+              icon={<MousePointerClick />}
+              variant={selectMode ? 'secondary' : 'ghost'}
+              action={() => setSelectMode((s) => !s)}
+            />
+            <TooltipBtn
+              label={selectMode ? 'Trash' : 'Create Text'}
+              icon={<Tag />}
+              variant={selectMode ? 'secondary' : 'ghost'}
+              // action={() => setSelectMode((s) => !s)}
+            />
+            <Tally1 className="text-zinc-400" />
+            {/* <Input
+            value={selectedElement ? elementText[selectedElement] ?? '' : ''}
+            onChange={(e) => setSelectedText(e.target.value)}
+            placeholder={
+              selectedElement ? 'Edit selected text…' : 'Select an element to edit text'
+            }
+            disabled={!selectedElement}
+            className="w-[260px]"
+          /> */}
+          </div>
+
+          {/* Middle: style controls */}
+          <div className="flex items-center gap-2">
+            <TooltipBtn
+              label="Bold"
+              icon={<Bold />}
+              // variant="secondary"
+              action={toggleBold}
+            />
+            <TooltipBtn
+              label="Italic"
+              icon={<Italic />}
+              // variant="secondary"
+              action={toggleItalic}
+            />
+            <TooltipBtn
+              label="Icon"
+              icon={<Leaf />}
+              // variant="secondary"
+              action={toggleIcon}
+            />
+
+            <TooltipBtn
+              label="Color"
+              icon={
+                <label htmlFor="colord">
+                  <Brush />
+                  <input
+                    type="color"
+                    hidden
+                    onChange={(e) => setColor(e.target.value)}
+                    disabled={!selectedElement}
+                    className="h-9 w-9 rounded-md border bg-background"
+                    title="Pick text color"
+                    id="colord"
+                    value={
+                      selectedElement &&
+                      (elementStyles[selectedElement]?.color as string)
+                        ? (elementStyles[selectedElement]?.color as string)
+                        : '#000000'
+                    }
+                  />
+                </label>
+              }
+              // variant="secondary"
+              // action={toggleIcon}
+            />
+
+            <TooltipBtn
+              label="more options"
+              icon={<Wrench />}
+              // variant="secondary"
+              action={toggleIcon}
+            />
+            <Separator orientation="vertical" className="mx-1 h-6" />
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                inputMode="numeric"
+                placeholder="Font Size"
+                className="w-fit"
+                value={selectedElement ? currentSize : ''}
+                onChange={(e) => setSize(parseInt(e.target.value || '0', 10))}
+                disabled={!selectedElement}
+              />
+              <Input
+                type="number"
+                inputMode="numeric"
+                placeholder="Weight"
+                className="w-fit"
+                value={selectedElement ? currentWeight : ''}
+                onChange={(e) => setWeight(parseInt(e.target.value || '0', 10))}
+                disabled={!selectedElement}
+              />
+            </div>
+          </div>
+
+          {/* Right: preview + font pickers */}
+          <div className="flex items-center gap-2">
+            <Select value={activePreview} onValueChange={setActivePreview}>
+              <SelectTrigger className="w-[150px] border-0">
+                <SelectValue placeholder="Select Preview" />
+              </SelectTrigger>
+              <SelectContent>
+                {previews.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={activeFont} onValueChange={setActiveFont}>
+              <SelectTrigger className="w-[200px] border-0">
+                <SelectValue placeholder="Choose Font" />
+              </SelectTrigger>
+              <SelectContent>
+                {fonts.map((f) => (
+                  <SelectItem key={f.id} value={f.fontFamily}>
+                    {f.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>

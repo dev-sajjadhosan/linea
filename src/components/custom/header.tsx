@@ -15,8 +15,13 @@ const paths = [
   },
 
   {
-    label: 'ai search',
-    path: '/ai-search',
+    label: 'typography',
+    path: '/typography',
+    icon: '',
+  },
+  {
+    label: 'Playground',
+    path: '/playground',
     icon: '',
   },
   {

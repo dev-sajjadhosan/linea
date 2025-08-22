@@ -5,6 +5,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 
 type TooltipBtnProps = {
   label?: string
@@ -21,6 +22,7 @@ type TooltipBtnProps = {
   size?: 'sm' | 'lg' | 'icon'
   action?: () => void
   disable?: boolean | undefined
+  to?: string | null
 }
 
 export default function TooltipBtn({
@@ -32,18 +34,32 @@ export default function TooltipBtn({
   size = 'icon',
   action,
   disable,
+  to,
 }: TooltipBtnProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          variant={variant}
-          size={size}
-          onClick={action}
-          disabled={disable}
-        >
-          {icon}
-        </Button>
+        {to ? (
+          <Link to={to}>
+            <Button
+              variant={variant}
+              size={size}
+              onClick={action}
+              disabled={disable}
+            >
+              {icon}
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            variant={variant}
+            size={size}
+            onClick={action}
+            disabled={disable}
+          >
+            {icon}
+          </Button>
+        )}
       </TooltipTrigger>
       <TooltipContent align={align} side={side}>
         <p>{label}</p>

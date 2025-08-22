@@ -1,6 +1,6 @@
 import Header from '@/components/custom/header'
 
-export default function AiSearch() {
+export default function Typography() {
   return (
     <>
       <Header />

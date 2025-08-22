@@ -7,8 +7,9 @@ import { Toaster } from '@/components/ui/sonner'
 import Fonts from '@/pages/Fonts/Fonts'
 import Home from '@/pages/Home/Home'
 import About from '@/pages/About/About'
-import AiSearch from '@/pages/AiSearch/AiSearch'
 import { ThemeProvider } from '@/context/theme-provider'
+import Typography from '@/pages/Typography/Typography'
+import Playground from '@/pages/Playground/Playground'
 
 const routes = createBrowserRouter([
   {
@@ -24,8 +25,12 @@ const routes = createBrowserRouter([
     element: <Fonts />,
   },
   {
-    path: '/ai-search',
-    element: <AiSearch />,
+    path: '/typography',
+    element: <Typography />,
+  },
+  {
+    path: '/playground',
+    element: <Playground />,
   },
   {
     path: '/about',
