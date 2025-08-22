@@ -23,6 +23,8 @@ type TooltipBtnProps = {
   action?: () => void
   disable?: boolean | undefined
   to?: string | null
+  className?: string | undefined
+  type?: 'button' | 'reset' | 'submit'
 }
 
 export default function TooltipBtn({
@@ -35,6 +37,8 @@ export default function TooltipBtn({
   action,
   disable,
   to,
+  className,
+  type = 'button',
 }: TooltipBtnProps) {
   return (
     <Tooltip>
@@ -42,6 +46,8 @@ export default function TooltipBtn({
         {to ? (
           <Link to={to}>
             <Button
+              type={type}
+              className={className}
               variant={variant}
               size={size}
               onClick={action}
@@ -52,6 +58,8 @@ export default function TooltipBtn({
           </Link>
         ) : (
           <Button
+            type={type}
+            className={className}
             variant={variant}
             size={size}
             onClick={action}

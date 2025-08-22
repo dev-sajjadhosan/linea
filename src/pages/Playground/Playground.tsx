@@ -15,7 +15,6 @@ import {
   Redo2,
   Undo2,
   BrushCleaning,
-  Tally1,
   MousePointerClick,
   Home,
   ToggleLeft,
@@ -30,6 +29,18 @@ import {
   Underline,
   PanelsTopLeft,
   Layout,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CaseLower,
+  CaseUpper,
+  CaseSensitive,
+  Smartphone,
+  AlertCircle,
+  GripHorizontal,
+  ChevronsRightLeft,
+  EyeClosed,
 } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
@@ -40,10 +51,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Card } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import TooltipBtn from '@/components/custom/Tooltipbtn'
 import { Textarea } from '@/components/ui/textarea'
 import NewFeatures from '@/components/custom/newFeatures'
+import { toast } from 'sonner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Link } from 'react-router-dom'
 
 type TextBox = {
   id: string
@@ -65,6 +86,7 @@ type TextBox = {
   padding: number
   lineHeight: number
   textDecoration: 'none' | 'underline' | 'line-through'
+  textTransform: 'lowercase' | 'uppercase' | 'capitalize'
   zIndex: number
 }
 const alignments = [
@@ -139,6 +161,7 @@ const features = [
   },
 ]
 export default function TypographyPlayground() {
+  const [isMobile, setIsMobile] = useState(false)
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [history, setHistory] = useState<TextBox[][]>([])
@@ -151,9 +174,15 @@ export default function TypographyPlayground() {
 
   const containerRef = useRef<HTMLDivElement>(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
+  const toolbarRef2 = useRef<HTMLDivElement>(null)
 
   const selectedBox = textBoxes.find((tb) => tb.id === selectedId)
 
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setIsMobile(true)
+    }
+  }, [])
   // Fetch Google Fonts
   useEffect(() => {
     fetch(
@@ -192,6 +221,7 @@ export default function TypographyPlayground() {
       lineHeight: 1.2,
       textDecoration: 'none',
       zIndex: textBoxes.length,
+      textTransform: 'lowercase',
     }
     pushHistory([...textBoxes, newBox])
     setSelectedId(newId)
@@ -243,8 +273,10 @@ export default function TypographyPlayground() {
     if (
       containerRef.current &&
       toolbarRef.current &&
+      toolbarRef2.current &&
       !containerRef.current.contains(e.target as Node) &&
-      !toolbarRef.current.contains(e.target as Node)
+      !toolbarRef.current.contains(e.target as Node) &&
+      !toolbarRef2.current.contains(e.target as Node)
     ) {
       setSelectedId(null)
       setIsActive(false) // reset the active state too
@@ -258,9 +290,69 @@ export default function TypographyPlayground() {
 
   const toggleTransparent = () => {
     if (!selectedBox) return
-    const newColor =
-      selectedBox.backgroundColor === 'transparent' ? '#000000' : 'transparent'
+    const newColor = (selectedBox.backgroundColor = 'transparent')
     updateBox(selectedBox.id, { backgroundColor: newColor })
+  }
+
+  // handler function
+  function moveBox(direction: 'up' | 'down' | 'left' | 'right') {
+    if (!selectedBox) return
+
+    let newX = selectedBox.x
+    let newY = selectedBox.y
+
+    switch (direction) {
+      case 'up':
+        newY -= 10 // move up by 10px
+        break
+      case 'down':
+        newY += 10
+        break
+      case 'left':
+        newX -= 10
+        break
+      case 'right':
+        newX += 10
+        break
+    }
+
+    updateBox(selectedBox.id, { x: newX, y: newY })
+  }
+
+  if (isMobile) {
+    return (
+      <div className="flex items-center justify-center h-screen p-6">
+        <Card className="max-w-xl w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-indigo-400 font-light">
+              <Smartphone className="" /> Mobile Not Supported
+            </CardTitle>
+            <CardDescription>
+              This editor is optimized for desktop. Please switch to a larger
+              screen to unlock the full experience.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert className="p-5">
+              <AlertCircle />
+              <AlertTitle>Why?</AlertTitle>
+              <AlertDescription>
+                Advanced editing tools don’t scale well on small screens. Use a
+                tablet or desktop for the best experience.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+          <p className="mt-3 text-sm text-center text-green-300">
+            Thank You ! Please use an large screen device
+          </p>
+          <Link to={'/home'}>
+            <Button className="w-44 mx-auto -mt-4" variant={'secondary'}>
+              <Home /> Back to Home
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -299,11 +391,10 @@ export default function TypographyPlayground() {
                     : box.textAlign === 'center'
                     ? 'center'
                     : 'flex-end',
-                border:
+                border: `${box.borderWidth}px solid ${box.borderColor}`,
+                outline:
                   selectedId === box.id
                     ? `2px solid #0ea5e9` // selected border
-                    : box.borderWidth
-                    ? `${box.borderWidth}px solid ${box.borderColor}`
                     : 'none',
                 borderRadius:
                   selectedId === box.id
@@ -315,7 +406,7 @@ export default function TypographyPlayground() {
                     : box.padding,
                 textDecoration: box.textDecoration,
                 cursor: 'pointer',
-
+                textTransform: box.textTransform,
                 // overflow: 'hidden', // cut off extra content
                 // wordBreak: 'break-word', // break long words
                 // whiteSpace: 'pre-wrap', // preserve newlines and wrap text
@@ -324,8 +415,9 @@ export default function TypographyPlayground() {
                 minWidth: 50,
               }}
               onClick={() => {
-                setSelectedId(box.id)
-                setIsActive(true) // reset the active state too
+                if (isActive) {
+                  setSelectedId(box.id) // select only when active
+                }
               }}
             >
               <div className="relative">
@@ -341,35 +433,280 @@ export default function TypographyPlayground() {
                 >
                   {box.text}
                 </div>
-                {openId === box.id && (
-                  <Card className="w-lg p-5 absolute">
-                    <Textarea
-                      value={box.text}
-                      autoFocus
-                      rows={2} // start small
-                      className="border-0 bg-transparent resize-none overflow-hidden"
-                      onChange={(e) =>
-                        updateBox(box.id, { text: e.target.value })
-                      }
-                      onFocus={(e) => {
-                        const target = e.target as HTMLTextAreaElement
-                        target.style.height = 'auto' // reset height
-                        target.style.height = `${target.scrollHeight}px` // set to scrollHeight
-                      }}
-                      onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement
-                        target.style.height = 'auto' // reset height
-                        target.style.height = `${target.scrollHeight}px` // set to scrollHeight
-                      }}
-                      onBlur={() => setOpenId(null)}
-                    />
-                  </Card>
-                )}
               </div>
             </Rnd>
           ))}
       </div>
 
+      {selectedBox && (
+        <Card ref={toolbarRef2} className="fixed top-2.5 right-2.5 w-sm p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <TooltipBtn
+                label="Collapse"
+                icon={<ChevronsRightLeft />}
+                action={() => toast.warning('This action is dev mode!')}
+              />
+              <TooltipBtn
+                label="Hide"
+                icon={<EyeClosed />}
+                action={() => toast.warning('This action is dev mode!')}
+              />
+            </div>
+            <TooltipBtn
+              label="Drag"
+              icon={<GripHorizontal />}
+              action={() => toast.warning('This action is dev mode!')}
+            />
+          </div>
+          <div className="flex flex-wrap items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Actions</h3>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <TooltipBtn
+                  label="New Text"
+                  icon={<Type />}
+                  action={addTextBox}
+                />
+                <TooltipBtn
+                  label="Select"
+                  icon={<MousePointerClick />}
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  action={() => {
+                    if (isActive) setSelectedId(null) // clear when turning off
+                    setIsActive(!isActive)
+                  }}
+                />
+
+                <TooltipBtn label="Copy" icon={<Layers2 />} action={copyBox} />
+                <TooltipBtn
+                  label="Delete"
+                  icon={<Trash />}
+                  action={deleteBox}
+                />
+                <TooltipBtn
+                  label="Ai help"
+                  icon={<Sparkles />}
+                  action={() =>
+                    toast.warning('This features is under cooking!')
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">History</h3>
+              <div className="flex items-center gap-1.5">
+                <TooltipBtn label="Undo" icon={<Undo2 />} action={undo} />
+                <TooltipBtn label="Redo" icon={<Redo2 />} action={redo} />
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Typography</h3>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <TooltipBtn
+                  label="Bold"
+                  icon={<Bold />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      fontWeight: selectedBox.fontWeight === 700 ? 400 : 700,
+                    })
+                  }
+                />
+                <TooltipBtn
+                  label="Italic"
+                  icon={<Italic />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      fontStyle:
+                        selectedBox.fontStyle === 'italic'
+                          ? 'normal'
+                          : 'italic',
+                    })
+                  }
+                />
+                <TooltipBtn
+                  label="Strike through"
+                  icon={<Strikethrough />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      textDecoration:
+                        selectedBox.textDecoration === 'line-through'
+                          ? 'none'
+                          : 'line-through',
+                    })
+                  }
+                />
+                <TooltipBtn
+                  label="Underline"
+                  icon={<Underline />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      textDecoration:
+                        selectedBox.textDecoration === 'underline'
+                          ? 'none'
+                          : 'underline',
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Type Case</h3>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <TooltipBtn
+                  label="Small"
+                  icon={<CaseLower />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      textTransform:
+                        selectedBox.textTransform === 'capitalize' ||
+                        selectedBox.textTransform === 'uppercase'
+                          ? 'lowercase'
+                          : selectedBox.textTransform,
+                    })
+                  }
+                />
+                <TooltipBtn
+                  label="Big"
+                  icon={<CaseUpper />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      textTransform:
+                        selectedBox.textTransform === 'lowercase' ||
+                        selectedBox.textTransform === 'capitalize'
+                          ? 'uppercase'
+                          : selectedBox.textTransform,
+                    })
+                  }
+                />
+                <TooltipBtn
+                  label="Capitalize"
+                  icon={<CaseSensitive />}
+                  action={() =>
+                    updateBox(selectedBox.id, {
+                      textTransform:
+                        selectedBox.textTransform === 'lowercase' ||
+                        selectedBox.textTransform === 'uppercase'
+                          ? 'capitalize'
+                          : selectedBox.textTransform,
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <h3 className="text-sm text-gray-400">Color</h3>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <TooltipBtn
+                label="Color"
+                icon={
+                  <label>
+                    <Brush />
+                    <input
+                      type="color"
+                      hidden
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, { color: e.target.value })
+                      }
+                      value={selectedBox.color}
+                    />
+                  </label>
+                }
+              />
+              <TooltipBtn
+                label="Background"
+                icon={
+                  <label>
+                    <BrushCleaning />
+                    <input
+                      type="color"
+                      hidden
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          backgroundColor: e.target.value,
+                        })
+                      }
+                      value={selectedBox.backgroundColor}
+                    />
+                  </label>
+                }
+              />
+
+              <TooltipBtn
+                label="Transparent"
+                icon={<Hash />}
+                action={toggleTransparent}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Text Alignment</h3>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {alignments.map(({ label, value, icon }) => (
+                  <TooltipBtn
+                    key={value}
+                    label={label}
+                    icon={icon}
+                    size="sm"
+                    variant="ghost"
+                    className={
+                      selectedBox?.textAlign === value ? 'text-orange-500' : ''
+                    }
+                    action={() =>
+                      updateBox(selectedBox.id, {
+                        textAlign: value as any,
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Position</h3>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <TooltipBtn
+                  label="Up"
+                  icon={<ChevronUp />}
+                  action={() => moveBox('up')}
+                />
+                <TooltipBtn
+                  label="Down"
+                  icon={<ChevronDown />}
+                  action={() => moveBox('down')}
+                />
+                <TooltipBtn
+                  label="Left"
+                  icon={<ChevronLeft />}
+                  action={() => moveBox('left')}
+                />
+                <TooltipBtn
+                  label="Right"
+                  icon={<ChevronRight />}
+                  action={() => moveBox('right')}
+                />
+              </div>
+            </div>
+          </div>
+          {openId === selectedBox.id && (
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm text-gray-400">Write here</h3>
+              <Textarea
+                value={selectedBox.text}
+                autoFocus
+                rows={2} // start small
+                className="border-0 bg-transparent resize-y overflow-hidden"
+                onChange={(e) =>
+                  updateBox(selectedBox.id, { text: e.target.value })
+                }
+              />
+            </div>
+          )}
+        </Card>
+      )}
       <Card
         ref={toolbarRef}
         className={`fixed bottom-7 left-0 right-0 p-3 ${
@@ -378,239 +715,91 @@ export default function TypographyPlayground() {
       >
         <div className="w-full">
           {selectedBox ? (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap gap-2.5 items-center md:justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <TooltipBtn
-                    label="New Text"
-                    icon={<Type />}
-                    action={addTextBox}
-                  />
-                  <TooltipBtn
-                    label="Select"
-                    icon={<MousePointerClick />}
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    action={() => setIsActive(!isActive)}
-                  />
-                  <TooltipBtn
-                    label="Bold"
-                    icon={<Bold />}
-                    action={() =>
-                      updateBox(selectedBox.id, {
-                        fontWeight: selectedBox.fontWeight === 700 ? 400 : 700,
-                      })
-                    }
-                  />
-                  <TooltipBtn
-                    label="Italic"
-                    icon={<Italic />}
-                    action={() =>
-                      updateBox(selectedBox.id, {
-                        fontStyle:
-                          selectedBox.fontStyle === 'italic'
-                            ? 'normal'
-                            : 'italic',
-                      })
-                    }
-                  />
-                  <TooltipBtn
-                    label="Strike through"
-                    icon={<Strikethrough />}
-                    action={() =>
-                      updateBox(selectedBox.id, {
-                        textDecoration:
-                          selectedBox.textDecoration === 'line-through'
-                            ? 'none'
-                            : 'line-through',
-                      })
-                    }
-                  />
-                  <TooltipBtn
-                    label="Underline"
-                    icon={<Underline />}
-                    action={() =>
-                      updateBox(selectedBox.id, {
-                        textDecoration:
-                          selectedBox.textDecoration === 'underline'
-                            ? 'none'
-                            : 'underline',
-                      })
-                    }
-                  />
-                </div>
-                <Tally1 />
-                <div className="flex items-center gap-1.5">
-                  <TooltipBtn
-                    label="Color"
-                    icon={
-                      <label>
-                        <Brush />
-                        <input
-                          type="color"
-                          hidden
-                          onChange={(e) =>
-                            updateBox(selectedBox.id, { color: e.target.value })
-                          }
-                          value={selectedBox.color}
-                        />
-                      </label>
-                    }
-                  />
-                  <TooltipBtn
-                    label="Background"
-                    icon={
-                      <label>
-                        <BrushCleaning />
-                        <input
-                          type="color"
-                          hidden
-                          onChange={(e) =>
-                            updateBox(selectedBox.id, {
-                              backgroundColor: e.target.value,
-                            })
-                          }
-                          value={selectedBox.backgroundColor}
-                        />
-                      </label>
-                    }
-                  />
-
-                  <TooltipBtn
-                    label="Transparent"
-                    icon={<Hash />}
-                    action={toggleTransparent}
-                  />
-                </div>
-                <Tally1 />
-
-                <div className="flex items-center gap-1.5">
-                  <TooltipBtn
-                    label="Copy"
-                    icon={<Layers2 />}
-                    action={copyBox}
-                  />
-                  <TooltipBtn
-                    label="Delete"
-                    icon={<Trash />}
-                    action={deleteBox}
-                  />
-                </div>
-                <Tally1 />
-
-                <div className="flex items-center gap-1.5">
-                  {alignments.map(({ label, value, icon }) => (
-                    <TooltipBtn
-                      key={value}
-                      label={label}
-                      icon={icon}
-                      size="sm"
-                      variant={
-                        selectedBox?.textAlign === value
-                          ? 'default'
-                          : 'secondary'
-                      }
-                      action={() =>
-                        updateBox(selectedBox.id, {
-                          textAlign: value as any,
-                        })
-                      }
-                    />
-                  ))}
-                </div>
-                <Tally1 />
-                <div className="flex gap-2 ">
-                  <TooltipBtn label="Undo" icon={<Undo2 />} action={undo} />
-                  <TooltipBtn label="Redo" icon={<Redo2 />} action={redo} />
-                </div>
+            <div className="flex flex-wrap gap-3 items-center justify-between w-full">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Font Size</label>
+                <Input
+                  type="number"
+                  value={selectedBox.fontSize}
+                  onChange={(e) =>
+                    updateBox(selectedBox.id, {
+                      fontSize: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="w-16 text-center"
+                />
               </div>
-              {/* Inputs with labels */}
-              <div className="flex flex-wrap gap-3 items-center justify-between w-full">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Font Size</label>
-
-                  <Input
-                    type="number"
-                    value={selectedBox.fontSize}
-                    onChange={(e) =>
-                      updateBox(selectedBox.id, {
-                        fontSize: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-16 text-center"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Font Weight</label>
-                  <Input
-                    type="number"
-                    value={selectedBox.fontWeight}
-                    onChange={(e) =>
-                      updateBox(selectedBox.id, {
-                        fontWeight: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-16"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Border Radius</label>
-                  <Input
-                    type="number"
-                    value={selectedBox.borderRadius}
-                    onChange={(e) =>
-                      updateBox(selectedBox.id, {
-                        borderRadius: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-16 text-center"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Border Width</label>
-                  <Input
-                    type="number"
-                    value={selectedBox.borderWidth}
-                    onChange={(e) =>
-                      updateBox(selectedBox.id, {
-                        borderWidth: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-16 text-center"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Padding</label>
-                  <Input
-                    type="number"
-                    value={selectedBox.padding}
-                    onChange={(e) =>
-                      updateBox(selectedBox.id, {
-                        padding: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-16 text-center"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm">Font family</label>
-                  <Select
-                    value={selectedBox.fontFamily}
-                    onValueChange={(v) =>
-                      updateBox(selectedBox.id, { fontFamily: v })
-                    }
-                  >
-                    <SelectTrigger className="w-40 border-0">
-                      <SelectValue placeholder="Font" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {googleFonts.map((f) => (
-                        <SelectItem key={f} value={f}>
-                          {f}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Font Weight</label>
+                <Input
+                  type="number"
+                  value={selectedBox.fontWeight}
+                  onChange={(e) =>
+                    updateBox(selectedBox.id, {
+                      fontWeight: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="w-16"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Border Radius</label>
+                <Input
+                  type="number"
+                  value={selectedBox.borderRadius}
+                  onChange={(e) =>
+                    updateBox(selectedBox.id, {
+                      borderRadius: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="w-16 text-center"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Border Width</label>
+                <Input
+                  type="number"
+                  value={selectedBox.borderWidth}
+                  onChange={(e) =>
+                    updateBox(selectedBox.id, {
+                      borderWidth: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="w-16 text-center"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Padding</label>
+                <Input
+                  type="number"
+                  value={selectedBox.padding}
+                  onChange={(e) =>
+                    updateBox(selectedBox.id, {
+                      padding: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="w-16 text-center"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">Font family</label>
+                <Select
+                  value={selectedBox.fontFamily}
+                  onValueChange={(v) =>
+                    updateBox(selectedBox.id, { fontFamily: v })
+                  }
+                >
+                  <SelectTrigger className="w-40 border-0">
+                    <SelectValue placeholder="Font" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {googleFonts.map((f) => (
+                      <SelectItem key={f} value={f}>
+                        {f}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           ) : (
@@ -624,16 +813,16 @@ export default function TypographyPlayground() {
                 <TooltipBtn
                   label="Select"
                   icon={<MousePointerClick />}
-                  // action={addTextBox}
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  action={() => {
+                    if (isActive) setSelectedId(null) // clear when turning off
+                    setIsActive(!isActive)
+                  }}
                 />
               </div>
               <div className="flex items-center gap-1.5">
                 <NewFeatures features={features} />
                 <TooltipBtn label="Home" icon={<Home />} to={'/home'} />
-              </div>
-              <div className="flex gap-1.5 ">
-                <TooltipBtn label="Undo" icon={<Undo2 />} action={undo} />
-                <TooltipBtn label="Redo" icon={<Redo2 />} action={redo} />
               </div>
             </div>
           )}

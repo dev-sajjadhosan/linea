@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { BellRing, Info } from 'lucide-react'
+import TooltipBtn from '@/components/custom/Tooltipbtn'
+import GetNotify from '@/components/custom/getNotify'
 
 interface FeaturesDoc {
   title: string
@@ -21,14 +22,14 @@ export default function NewFeatures({ features }: { features: FeaturesDoc[] }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="text-xs text-destructive px-5 flex items-center gap-1"
-        >
-          <BellRing />
-          Coming
-        </Button>
+        <button>
+          <TooltipBtn
+            label="Coming"
+            icon={<BellRing />}
+            variant="secondary"
+            className="text-destructive"
+          />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="p-9 w-5xl! max-h-[80vh] flex flex-col [&>button]:hidden">
@@ -41,9 +42,7 @@ export default function NewFeatures({ features }: { features: FeaturesDoc[] }) {
               Check out what’s new coming in the latest update!
             </DialogDescription>
           </div>
-          <Button variant={'default'} size={'sm'}>
-            Notify via mail <BellRing />
-          </Button>
+          <GetNotify />
         </DialogHeader>
 
         <div className="mt-4 grid md:grid-cols-2 gap-5 overflow-y-auto flex-1 pr-2">
