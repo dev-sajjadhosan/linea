@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from 'react'
+// import domtoimage from 'dom-to-image-more'
 import { Rnd } from 'react-rnd'
 import {
   Bold,
@@ -41,6 +42,13 @@ import {
   GripHorizontal,
   ChevronsRightLeft,
   EyeClosed,
+  Eye,
+  ChevronsLeftRight,
+  Scan,
+  Square,
+  ListFilterPlus,
+  Keyboard,
+  Aperture,
 } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
@@ -65,6 +73,7 @@ import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
+import { Badge } from '@/components/ui/badge'
 
 type TextBox = {
   id: string
@@ -80,10 +89,10 @@ type TextBox = {
   color: string
   backgroundColor: string
   textAlign: 'left' | 'center' | 'right'
-  borderRadius: number
-  borderWidth: number | undefined
+  borderRadius: number | { x: number; y: number }
+  borderWidth: number | { x: number; y: number }
+  padding: number | { x: number; y: number }
   borderColor: string
-  padding: number
   lineHeight: number
   textDecoration: 'none' | 'underline' | 'line-through'
   textTransform: 'lowercase' | 'uppercase' | 'capitalize'
@@ -95,6 +104,12 @@ const alignments = [
   { label: 'Align Right', value: 'right', icon: <AlignRight /> },
 ]
 const features = [
+  {
+    title: 'Keyboard Key Support',
+    description:
+      'Quickly take actions , adjust padding, borders, or positions using keyboard keys for faster editing.',
+    icon: <Keyboard />,
+  },
   {
     title: 'All side edit',
     description:
@@ -162,6 +177,9 @@ const features = [
 ]
 export default function TypographyPlayground() {
   const [isMobile, setIsMobile] = useState(false)
+  const [isCollapse, setIsCollapse] = useState(true)
+  const [isHide, setIsHide] = useState(true)
+  const [isSides, setIsSides] = useState(false)
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [history, setHistory] = useState<TextBox[][]>([])
@@ -169,8 +187,9 @@ export default function TypographyPlayground() {
   const [googleFonts, setGoogleFonts] = useState<string[]>([])
   const [activeFont] = useState<string>('Roboto, sans-serif') //setActiveFont
   const [openId, setOpenId] = useState<string | null>(null)
-
   const [isActive, setIsActive] = useState(false)
+
+  const [posVal, setPosVal] = useState(10)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
@@ -303,21 +322,38 @@ export default function TypographyPlayground() {
 
     switch (direction) {
       case 'up':
-        newY -= 10 // move up by 10px
+        newY -= posVal // move up by 10px
         break
       case 'down':
-        newY += 10
+        newY += posVal
         break
       case 'left':
-        newX -= 10
+        newX -= posVal
         break
       case 'right':
-        newX += 10
+        newX += posVal
         break
     }
 
     updateBox(selectedBox.id, { x: newX, y: newY })
   }
+
+  function getValue(val: number | { x: number; y: number }, axis: 'x' | 'y') {
+    if (typeof val === 'number') return val
+    return val[axis]
+  }
+
+  function setValue(
+    val: number | { x: number; y: number },
+    axis: 'x' | 'y',
+    newVal: number,
+  ) {
+    if (typeof val === 'number') {
+      return { x: newVal, y: newVal }
+    }
+    return { ...val, [axis]: newVal }
+  }
+
 
   if (isMobile) {
     return (
@@ -358,359 +394,418 @@ export default function TypographyPlayground() {
   return (
     <div className="w-full h-screen flex flex-col relative">
       <div ref={containerRef} className="flex-1 relative border">
-        {textBoxes
-          .slice()
-          .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
-          .map((box) => (
-            <Rnd
-              key={box.id}
-              size={{ width: box.width, height: box.height }}
-              position={{ x: box.x, y: box.y }}
-              onDragStop={(_, d) => updateBox(box.id, { x: d.x, y: d.y })}
-              onResizeStop={(_, __, ref, ___, pos) =>
-                updateBox(box.id, {
-                  width: parseInt(ref.style.width),
-                  height: parseInt(ref.style.height),
-                  ...pos,
-                })
-              }
-              bounds="parent"
-              style={{
-                fontFamily: box.fontFamily,
-                fontSize: box.fontSize,
-                fontWeight: box.fontWeight,
-                fontStyle: box.fontStyle,
-                color: box.color,
-                backgroundColor: box.backgroundColor,
-                textAlign: box.textAlign as any,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent:
-                  box.textAlign === 'left'
-                    ? 'flex-start'
-                    : box.textAlign === 'center'
-                    ? 'center'
-                    : 'flex-end',
-                border: `${box.borderWidth}px solid ${box.borderColor}`,
-                outline:
-                  selectedId === box.id
-                    ? `2px solid #0ea5e9` // selected border
-                    : 'none',
-                borderRadius:
-                  selectedId === box.id
-                    ? box.borderRadius || 4 // add a default 4px radius for outline
-                    : box.borderRadius,
-                padding:
-                  selectedId === box.id
-                    ? box.padding || 6 // add extra padding when selected
-                    : box.padding,
-                textDecoration: box.textDecoration,
-                cursor: 'pointer',
-                textTransform: box.textTransform,
-                // overflow: 'hidden', // cut off extra content
-                // wordBreak: 'break-word', // break long words
-                // whiteSpace: 'pre-wrap', // preserve newlines and wrap text
-                width: box.width === 'auto' ? 'fit-content' : box.width,
-                height: box.height === 'auto' ? 'fit-content' : box.height,
-                minWidth: 50,
-              }}
-              onClick={() => {
-                if (isActive) {
-                  setSelectedId(box.id) // select only when active
+        <div className="w-full h-full">
+          {textBoxes
+            .slice()
+            .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
+            .map((box) => (
+              <Rnd
+                key={box.id}
+                size={{ width: box.width, height: box.height }}
+                position={{ x: box.x, y: box.y }}
+                onDragStop={(_, d) => updateBox(box.id, { x: d.x, y: d.y })}
+                onResizeStop={(_, __, ref, ___, pos) =>
+                  updateBox(box.id, {
+                    width: parseInt(ref.style.width),
+                    height: parseInt(ref.style.height),
+                    ...pos,
+                  })
                 }
-              }}
-            >
-              <div className="relative">
-                <div
-                  style={{
-                    width: box.width === 'auto' ? 'fit-content' : box.width,
-                    minWidth: 50,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                  }}
-                  onDoubleClick={() => setOpenId(box.id)} // <-- double click triggers popover
-                  className="cursor-text"
-                >
-                  {box.text}
+                bounds="parent"
+                style={{
+                  fontFamily: box.fontFamily,
+                  fontSize: box.fontSize,
+                  fontWeight: box.fontWeight,
+                  fontStyle: box.fontStyle,
+                  color: box.color,
+                  backgroundColor: box.backgroundColor,
+                  textAlign: box.textAlign as any,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent:
+                    box.textAlign === 'left'
+                      ? 'flex-start'
+                      : box.textAlign === 'center'
+                      ? 'center'
+                      : 'flex-end',
+                  // border: `${box.borderWidth}px solid ${box.borderColor}`,
+                  outline:
+                    selectedId === box.id
+                      ? `2px solid #0ea5e9` // selected border
+                      : 0,
+                  borderRadius:
+                    typeof box.borderRadius === 'number'
+                      ? `${box.borderRadius}px`
+                      : `${box.borderRadius.x}px ${box.borderRadius.y}px`,
+                  borderStyle: 'solid',
+                  borderColor: box.borderColor,
+                  borderWidth:
+                    typeof box.borderWidth === 'number'
+                      ? `${box.borderWidth}px`
+                      : `${box.borderWidth.x}px ${box.borderWidth.y}px`,
+                  padding:
+                    typeof box.padding === 'number'
+                      ? `${box.padding}px`
+                      : `${box.padding.x}px ${box.padding.y}px`,
+                  textDecoration: box.textDecoration,
+                  cursor: 'pointer',
+                  textTransform: box.textTransform,
+                  // overflow: 'hidden', // cut off extra content
+                  // wordBreak: 'break-word', // break long words
+                  // whiteSpace: 'pre-wrap', // preserve newlines and wrap text
+                  width: box.width === 'auto' ? 'fit-content' : box.width,
+                  height: box.height === 'auto' ? 'fit-content' : box.height,
+                  minWidth: 50,
+                }}
+                onClick={() => {
+                  if (isActive) {
+                    setSelectedId(box.id) // select only when active
+                  }
+                }}
+              >
+                <div className="relative">
+                  <div
+                    style={{
+                      width: box.width === 'auto' ? 'fit-content' : box.width,
+                      minWidth: 50,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                    }}
+                    onDoubleClick={() => setOpenId(box.id)} // <-- double click triggers popover
+                    className="cursor-grab"
+                  >
+                    {box.text}
+                  </div>
                 </div>
-              </div>
-            </Rnd>
-          ))}
+              </Rnd>
+            ))}
+        </div>
       </div>
 
       {selectedBox && (
-        <Card ref={toolbarRef2} className="fixed top-2.5 right-2.5 w-sm p-5">
+        <Card
+          ref={toolbarRef2}
+          className={`fixed top-2.5 right-2.5 ${isCollapse ? 'w-64' : 'w-sm'} ${
+            isHide ? 'p-5' : 'p-3'
+          }`}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <TooltipBtn
-                label="Collapse"
-                icon={<ChevronsRightLeft />}
-                action={() => toast.warning('This action is dev mode!')}
-              />
-              <TooltipBtn
-                label="Hide"
-                icon={<EyeClosed />}
-                action={() => toast.warning('This action is dev mode!')}
-              />
-            </div>
-            <TooltipBtn
-              label="Drag"
-              icon={<GripHorizontal />}
-              action={() => toast.warning('This action is dev mode!')}
-            />
-          </div>
-          <div className="flex flex-wrap items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Actions</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <TooltipBtn
-                  label="New Text"
-                  icon={<Type />}
-                  action={addTextBox}
-                />
-                <TooltipBtn
-                  label="Select"
-                  icon={<MousePointerClick />}
-                  variant={isActive ? 'secondary' : 'ghost'}
-                  action={() => {
-                    if (isActive) setSelectedId(null) // clear when turning off
-                    setIsActive(!isActive)
-                  }}
-                />
-
-                <TooltipBtn label="Copy" icon={<Layers2 />} action={copyBox} />
-                <TooltipBtn
-                  label="Delete"
-                  icon={<Trash />}
-                  action={deleteBox}
-                />
-                <TooltipBtn
-                  label="Ai help"
-                  icon={<Sparkles />}
-                  action={() =>
-                    toast.warning('This features is under cooking!')
-                  }
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">History</h3>
-              <div className="flex items-center gap-1.5">
-                <TooltipBtn label="Undo" icon={<Undo2 />} action={undo} />
-                <TooltipBtn label="Redo" icon={<Redo2 />} action={redo} />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Typography</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <TooltipBtn
-                  label="Bold"
-                  icon={<Bold />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      fontWeight: selectedBox.fontWeight === 700 ? 400 : 700,
-                    })
-                  }
-                />
-                <TooltipBtn
-                  label="Italic"
-                  icon={<Italic />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      fontStyle:
-                        selectedBox.fontStyle === 'italic'
-                          ? 'normal'
-                          : 'italic',
-                    })
-                  }
-                />
-                <TooltipBtn
-                  label="Strike through"
-                  icon={<Strikethrough />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      textDecoration:
-                        selectedBox.textDecoration === 'line-through'
-                          ? 'none'
-                          : 'line-through',
-                    })
-                  }
-                />
-                <TooltipBtn
-                  label="Underline"
-                  icon={<Underline />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      textDecoration:
-                        selectedBox.textDecoration === 'underline'
-                          ? 'none'
-                          : 'underline',
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Type Case</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <TooltipBtn
-                  label="Small"
-                  icon={<CaseLower />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      textTransform:
-                        selectedBox.textTransform === 'capitalize' ||
-                        selectedBox.textTransform === 'uppercase'
-                          ? 'lowercase'
-                          : selectedBox.textTransform,
-                    })
-                  }
-                />
-                <TooltipBtn
-                  label="Big"
-                  icon={<CaseUpper />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      textTransform:
-                        selectedBox.textTransform === 'lowercase' ||
-                        selectedBox.textTransform === 'capitalize'
-                          ? 'uppercase'
-                          : selectedBox.textTransform,
-                    })
-                  }
-                />
-                <TooltipBtn
-                  label="Capitalize"
-                  icon={<CaseSensitive />}
-                  action={() =>
-                    updateBox(selectedBox.id, {
-                      textTransform:
-                        selectedBox.textTransform === 'lowercase' ||
-                        selectedBox.textTransform === 'uppercase'
-                          ? 'capitalize'
-                          : selectedBox.textTransform,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-sm text-gray-400">Color</h3>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <TooltipBtn
-                label="Color"
+                label={isCollapse ? 'UnCol' : 'Col'}
+                variant={isCollapse ? 'secondary' : 'ghost'}
                 icon={
-                  <label>
-                    <Brush />
-                    <input
-                      type="color"
-                      hidden
-                      onChange={(e) =>
-                        updateBox(selectedBox.id, { color: e.target.value })
-                      }
-                      value={selectedBox.color}
-                    />
-                  </label>
+                  isCollapse ? <ChevronsRightLeft /> : <ChevronsLeftRight />
                 }
+                action={() => setIsCollapse(!isCollapse)}
               />
               <TooltipBtn
-                label="Background"
-                icon={
-                  <label>
-                    <BrushCleaning />
-                    <input
-                      type="color"
-                      hidden
-                      onChange={(e) =>
+                label={isHide ? 'Hide' : 'View'}
+                icon={isHide ? <EyeClosed /> : <Eye />}
+                variant={isHide ? 'secondary' : 'ghost'}
+                action={() => setIsHide(!isHide)}
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <TooltipBtn
+                label={isSides ? 'Sides' : 'Side'}
+                icon={isSides ? <Scan /> : <Square />}
+                variant={isSides ? 'secondary' : 'ghost'}
+                action={() => setIsSides(!isSides)}
+              />
+              <Badge variant={'secondary'} className="cursor-grab">
+                <GripHorizontal />
+              </Badge>
+            </div>
+          </div>
+          {isHide && (
+            <>
+              <div
+                className={`flex ${
+                  isCollapse
+                    ? 'flex-col'
+                    : 'flex-row flex-wrap items-center justify-between'
+                }`}
+              >
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Actions</h3>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <TooltipBtn
+                      label="New Text"
+                      icon={<Type />}
+                      action={addTextBox}
+                    />
+                    <TooltipBtn
+                      label="Select"
+                      icon={<MousePointerClick />}
+                      variant={isActive ? 'secondary' : 'ghost'}
+                      action={() => {
+                        if (isActive) setSelectedId(null) // clear when turning off
+                        setIsActive(!isActive)
+                      }}
+                    />
+
+                    <TooltipBtn
+                      label="Copy"
+                      icon={<Layers2 />}
+                      action={copyBox}
+                    />
+                    <TooltipBtn
+                      label="Delete"
+                      icon={<Trash />}
+                      action={deleteBox}
+                    />
+                    <TooltipBtn
+                      label="Ai help"
+                      icon={<Sparkles />}
+                      action={() =>
+                        toast.warning('This features is under cooking!')
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">History</h3>
+                  <div className="flex items-center gap-1.5">
+                    <TooltipBtn label="Undo" icon={<Undo2 />} action={undo} />
+                    <TooltipBtn label="Redo" icon={<Redo2 />} action={redo} />
+                  </div>
+                </div>
+              </div>
+              <div
+                className={`flex ${
+                  isCollapse
+                    ? 'flex-col'
+                    : 'flex-row flex-wrap items-center justify-between'
+                }`}
+              >
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Typography</h3>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <TooltipBtn
+                      label="Bold"
+                      icon={<Bold />}
+                      action={() =>
                         updateBox(selectedBox.id, {
-                          backgroundColor: e.target.value,
+                          fontWeight:
+                            selectedBox.fontWeight === 700 ? 400 : 700,
                         })
                       }
-                      value={selectedBox.backgroundColor}
                     />
-                  </label>
-                }
-              />
-
-              <TooltipBtn
-                label="Transparent"
-                icon={<Hash />}
-                action={toggleTransparent}
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Text Alignment</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {alignments.map(({ label, value, icon }) => (
+                    <TooltipBtn
+                      label="Italic"
+                      icon={<Italic />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          fontStyle:
+                            selectedBox.fontStyle === 'italic'
+                              ? 'normal'
+                              : 'italic',
+                        })
+                      }
+                    />
+                    <TooltipBtn
+                      label="Strike through"
+                      icon={<Strikethrough />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          textDecoration:
+                            selectedBox.textDecoration === 'line-through'
+                              ? 'none'
+                              : 'line-through',
+                        })
+                      }
+                    />
+                    <TooltipBtn
+                      label="Underline"
+                      icon={<Underline />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          textDecoration:
+                            selectedBox.textDecoration === 'underline'
+                              ? 'none'
+                              : 'underline',
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Type Case</h3>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <TooltipBtn
+                      label="Small"
+                      icon={<CaseLower />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          textTransform:
+                            selectedBox.textTransform === 'capitalize' ||
+                            selectedBox.textTransform === 'uppercase'
+                              ? 'lowercase'
+                              : selectedBox.textTransform,
+                        })
+                      }
+                    />
+                    <TooltipBtn
+                      label="Big"
+                      icon={<CaseUpper />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          textTransform:
+                            selectedBox.textTransform === 'lowercase' ||
+                            selectedBox.textTransform === 'capitalize'
+                              ? 'uppercase'
+                              : selectedBox.textTransform,
+                        })
+                      }
+                    />
+                    <TooltipBtn
+                      label="Capitalize"
+                      icon={<CaseSensitive />}
+                      action={() =>
+                        updateBox(selectedBox.id, {
+                          textTransform:
+                            selectedBox.textTransform === 'lowercase' ||
+                            selectedBox.textTransform === 'uppercase'
+                              ? 'capitalize'
+                              : selectedBox.textTransform,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm text-gray-400">Color</h3>
+                <div className="flex flex-wrap items-center gap-1.5">
                   <TooltipBtn
-                    key={value}
-                    label={label}
-                    icon={icon}
-                    size="sm"
-                    variant="ghost"
-                    className={
-                      selectedBox?.textAlign === value ? 'text-orange-500' : ''
-                    }
-                    action={() =>
-                      updateBox(selectedBox.id, {
-                        textAlign: value as any,
-                      })
+                    label="Color"
+                    icon={
+                      <label>
+                        <Brush />
+                        <input
+                          type="color"
+                          hidden
+                          onChange={(e) =>
+                            updateBox(selectedBox.id, { color: e.target.value })
+                          }
+                          value={selectedBox.color}
+                        />
+                      </label>
                     }
                   />
-                ))}
+                  <TooltipBtn
+                    label="Background"
+                    icon={
+                      <label>
+                        <BrushCleaning />
+                        <input
+                          type="color"
+                          hidden
+                          onChange={(e) =>
+                            updateBox(selectedBox.id, {
+                              backgroundColor: e.target.value,
+                            })
+                          }
+                          value={selectedBox.backgroundColor}
+                        />
+                      </label>
+                    }
+                  />
+
+                  <TooltipBtn
+                    label="Transparent"
+                    icon={<Hash />}
+                    action={toggleTransparent}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Position</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <TooltipBtn
-                  label="Up"
-                  icon={<ChevronUp />}
-                  action={() => moveBox('up')}
-                />
-                <TooltipBtn
-                  label="Down"
-                  icon={<ChevronDown />}
-                  action={() => moveBox('down')}
-                />
-                <TooltipBtn
-                  label="Left"
-                  icon={<ChevronLeft />}
-                  action={() => moveBox('left')}
-                />
-                <TooltipBtn
-                  label="Right"
-                  icon={<ChevronRight />}
-                  action={() => moveBox('right')}
-                />
+              <div
+                className={`flex ${
+                  isCollapse
+                    ? 'flex-col'
+                    : 'flex-row flex-wrap items-center justify-between'
+                }`}
+              >
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Text Alignment</h3>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {alignments.map(({ label, value, icon }) => (
+                      <TooltipBtn
+                        key={value}
+                        label={label}
+                        icon={icon}
+                        size="sm"
+                        variant="ghost"
+                        className={
+                          selectedBox?.textAlign === value
+                            ? 'text-orange-500'
+                            : ''
+                        }
+                        action={() =>
+                          updateBox(selectedBox.id, {
+                            textAlign: value as any,
+                          })
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Position</h3>
+                  <div className="flex items-center gap-0.5">
+                    <div className="flex flex-wrap items-center gap-0.5">
+                      <TooltipBtn
+                        label="Up"
+                        icon={<ChevronUp />}
+                        action={() => moveBox('up')}
+                      />
+                      <TooltipBtn
+                        label="Down"
+                        icon={<ChevronDown />}
+                        action={() => moveBox('down')}
+                      />
+                      <TooltipBtn
+                        label="Left"
+                        icon={<ChevronLeft />}
+                        action={() => moveBox('left')}
+                      />
+                      <TooltipBtn
+                        label="Right"
+                        icon={<ChevronRight />}
+                        action={() => moveBox('right')}
+                      />
+                    </div>
+                    <Input
+                      className="w-14 text-center"
+                      value={posVal}
+                      onChange={(e) => setPosVal(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          {openId === selectedBox.id && (
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm text-gray-400">Write here</h3>
-              <Textarea
-                value={selectedBox.text}
-                autoFocus
-                rows={2} // start small
-                className="border-0 bg-transparent resize-y overflow-hidden"
-                onChange={(e) =>
-                  updateBox(selectedBox.id, { text: e.target.value })
-                }
-              />
-            </div>
+              {openId === selectedBox.id && (
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm text-gray-400">Write here</h3>
+                  <Textarea
+                    value={selectedBox.text}
+                    autoFocus
+                    rows={2} // start small
+                    className="border-0 bg-transparent resize-y overflow-hidden"
+                    onChange={(e) =>
+                      updateBox(selectedBox.id, { text: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+            </>
           )}
         </Card>
       )}
       <Card
         ref={toolbarRef}
-        className={`fixed bottom-7 left-0 right-0 p-3 ${
-          selectedBox ? 'md:w-6xl' : 'w-sm'
+        className={`fixed bottom-3 left-0 right-0 ${
+          selectedBox ? 'md:w-4xl py-2.5 px-5' : 'w-sm p-2.5'
         } mx-auto rounded-xl flex-row items-center justify-between flex-wrap gap-2`}
       >
         <div className="w-full">
@@ -744,62 +839,179 @@ export default function TypographyPlayground() {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm">Border Radius</label>
-                <Input
-                  type="number"
-                  value={selectedBox.borderRadius}
-                  onChange={(e) =>
-                    updateBox(selectedBox.id, {
-                      borderRadius: parseInt(e.target.value, 10),
-                    })
-                  }
-                  className="w-16 text-center"
-                />
+                {isSides ? (
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.borderRadius, 'x')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          borderRadius: setValue(
+                            selectedBox.borderRadius,
+                            'x',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.borderRadius, 'y')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          borderRadius: setValue(
+                            selectedBox.borderRadius,
+                            'y',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    type="number"
+                    value={
+                      typeof selectedBox.borderRadius === 'number'
+                        ? selectedBox.borderRadius
+                        : selectedBox.borderRadius.x
+                    }
+                    onChange={(e) =>
+                      updateBox(selectedBox.id, {
+                        borderRadius: parseInt(e.target.value, 10),
+                      })
+                    }
+                    className="w-16 text-center"
+                  />
+                )}
               </div>
+
               <div className="flex flex-col gap-1">
                 <label className="text-sm">Border Width</label>
-                <Input
-                  type="number"
-                  value={selectedBox.borderWidth}
-                  onChange={(e) =>
-                    updateBox(selectedBox.id, {
-                      borderWidth: parseInt(e.target.value, 10),
-                    })
-                  }
-                  className="w-16 text-center"
-                />
+                {isSides ? (
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.borderWidth, 'x')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          borderWidth: setValue(
+                            selectedBox.borderWidth,
+                            'x',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.borderWidth, 'y')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          borderWidth: setValue(
+                            selectedBox.borderWidth,
+                            'y',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    type="number"
+                    value={
+                      typeof selectedBox.borderWidth === 'number'
+                        ? selectedBox.borderWidth
+                        : selectedBox.borderWidth.x
+                    }
+                    onChange={(e) =>
+                      updateBox(selectedBox.id, {
+                        borderWidth: parseInt(e.target.value, 10),
+                      })
+                    }
+                    className="w-16 text-center"
+                  />
+                )}
               </div>
+
               <div className="flex flex-col gap-1">
                 <label className="text-sm">Padding</label>
-                <Input
-                  type="number"
-                  value={selectedBox.padding}
-                  onChange={(e) =>
-                    updateBox(selectedBox.id, {
-                      padding: parseInt(e.target.value, 10),
-                    })
-                  }
-                  className="w-16 text-center"
-                />
+                {isSides ? (
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.padding, 'x')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          padding: setValue(
+                            selectedBox.padding,
+                            'x',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                    <Input
+                      type="number"
+                      value={getValue(selectedBox.padding, 'y')}
+                      onChange={(e) =>
+                        updateBox(selectedBox.id, {
+                          padding: setValue(
+                            selectedBox.padding,
+                            'y',
+                            parseInt(e.target.value, 10),
+                          ),
+                        })
+                      }
+                      className="w-16 text-center"
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    type="number"
+                    value={
+                      typeof selectedBox.padding === 'number'
+                        ? selectedBox.padding
+                        : selectedBox.padding.x
+                    }
+                    onChange={(e) =>
+                      updateBox(selectedBox.id, {
+                        padding: parseInt(e.target.value, 10),
+                      })
+                    }
+                    className="w-16 text-center"
+                  />
+                )}
               </div>
-              <div className="flex flex-col gap-1">
+
+              <div className="flex flex-wrap flex-col gap-1">
                 <label className="text-sm">Font family</label>
-                <Select
-                  value={selectedBox.fontFamily}
-                  onValueChange={(v) =>
-                    updateBox(selectedBox.id, { fontFamily: v })
-                  }
-                >
-                  <SelectTrigger className="w-40 border-0">
-                    <SelectValue placeholder="Font" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {googleFonts.map((f) => (
-                      <SelectItem key={f} value={f}>
-                        {f}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-1">
+                  <Select
+                    value={selectedBox.fontFamily}
+                    onValueChange={(v) =>
+                      updateBox(selectedBox.id, { fontFamily: v })
+                    }
+                  >
+                    <SelectTrigger className="w-40 border-0">
+                      <SelectValue placeholder="Font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {googleFonts.map((f) => (
+                        <SelectItem key={f} value={f}>
+                          {f}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <TooltipBtn label="Magic Filter" icon={<ListFilterPlus />} />
+                </div>
               </div>
             </div>
           ) : (
@@ -809,6 +1021,11 @@ export default function TypographyPlayground() {
                   label="Next Text"
                   icon={<Type />}
                   action={addTextBox}
+                />
+                <TooltipBtn
+                  label="Export"
+                  icon={<Aperture />}
+                  action={() => toast.info('The features is under cooking?')}
                 />
                 <TooltipBtn
                   label="Select"
