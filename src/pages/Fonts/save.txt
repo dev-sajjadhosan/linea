@@ -1,0 +1,49 @@
+  {filteredData.map((l) => {
+                  // Load the regular weight for preview
+                  const previewWeight = '400'
+                  const fontUrl =
+                    l.files[previewWeight] || l.files[l.variants[0]]
+                  if (fontUrl) loadFont(l.family, fontUrl)
+
+                  return (
+                    <motion.div
+                      key={l.family}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Card className="hover:border-zinc-700 transition-colors">
+                        <CardContent className="pt-5">
+                          <div className="flex items-center justify-between mb-2">
+                            <h1 className="text-xl font-gor">{l.family}</h1>
+                          </div>
+
+                          <p
+                            className="mt-3 text-wrap whitespace-pre-wrap overflow-hidden"
+                            style={{
+                              fontSize: fontSize,
+                              fontWeight: fontWeight,
+                              fontFamily: `"${l.family}", ${l.category}`,
+                            }}
+                          >
+                            {text}
+                          </p>
+
+                          <div className="mt-7 flex items-center justify-between">
+                            <div className="flex items-center gap-2 mt-4"></div>
+
+                            <div className="mt-4 flex items-center justify-end gap-2">
+                              <Button size="sm" variant="default">
+                                <PackagePlus className="mr-1 h-4 w-4" /> Use it
+                              </Button>
+                              <Button size="sm" variant="ghost">
+                                <Grid2x2Plus className="mr-1 h-4 w-4" /> Add to
+                                Store
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )
+                })}

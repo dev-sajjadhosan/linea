@@ -74,6 +74,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
+import useFonts from '@/hooks/useFonts'
 
 type TextBox = {
   id: string
@@ -176,6 +177,8 @@ const features = [
   },
 ]
 export default function TypographyPlayground() {
+  const { fonts, loading } = useFonts()
+
   const [isMobile, setIsMobile] = useState(false)
   const [isCollapse, setIsCollapse] = useState(true)
   const [isHide, setIsHide] = useState(true)
@@ -184,8 +187,7 @@ export default function TypographyPlayground() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [history, setHistory] = useState<TextBox[][]>([])
   const [redoStack, setRedoStack] = useState<TextBox[][]>([])
-  const [googleFonts, setGoogleFonts] = useState<string[]>([])
-  const [activeFont] = useState<string>('Roboto, sans-serif') //setActiveFont
+  const [activeFont,setActiveFont] = useState<string>('Roboto, sans-serif') //setActiveFont
   const [openId, setOpenId] = useState<string | null>(null)
   const [isActive, setIsActive] = useState(false)
 
@@ -201,14 +203,6 @@ export default function TypographyPlayground() {
     if (window.innerWidth < 768) {
       setIsMobile(true)
     }
-  }, [])
-  // Fetch Google Fonts
-  useEffect(() => {
-    fetch(
-      'https://www.googleapis.com/webfonts/v1/webfonts?key=YOUR_API_KEY&sort=popularity',
-    )
-      .then((res) => res.json())
-      .then((data) => setGoogleFonts(data.items.map((f: any) => f?.family)))
   }, [])
 
   const pushHistory = (newBoxes: TextBox[]) => {
@@ -353,7 +347,6 @@ export default function TypographyPlayground() {
     }
     return { ...val, [axis]: newVal }
   }
-
 
   if (isMobile) {
     return (
@@ -1003,9 +996,9 @@ export default function TypographyPlayground() {
                       <SelectValue placeholder="Font" />
                     </SelectTrigger>
                     <SelectContent>
-                      {googleFonts.map((f) => (
-                        <SelectItem key={f} value={f}>
-                          {f}
+                      {fonts.map((f) => (
+                        <SelectItem key={f.family} value={f.family} >
+                          {f.family}
                         </SelectItem>
                       ))}
                     </SelectContent>

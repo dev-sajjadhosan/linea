@@ -35,7 +35,7 @@ export default function Header() {
   const IsPath = (path: string) => useLocation().pathname === path.toLowerCase()
   return (
     <>
-      <header className="sticky top-5 flex items-center justify-between md:w-5xl px-5 py-2  rounded-md mx-auto mt-2">
+      <header className="sticky top-5 flex items-center justify-between md:w-5xl px-5 py-2  rounded-md mx-auto mt-2 bg-primary-foreground">
         <div className="flex items-center gap-1">
           <img src="/public/favicon.png" width={23} alt="" />
           <h1 className="text-lg font-gor">Linea</h1>

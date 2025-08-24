@@ -17,14 +17,18 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
+import useFonts, { GoogleFontsResponse } from '@/hooks/useFonts'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 import {
   AlignJustify,
   ChevronDown,
+  Fan,
   Grid2x2Plus,
   Key,
   LayoutGrid,
+  ListFilter,
   Loader,
   PackagePlus,
   RotateCcw,
@@ -34,23 +38,28 @@ import {
   Sparkles,
   WandSparkles,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useAISuggestFonts } from '@/hooks/useAISuggestFonts'
 
 export default function Fonts() {
-  const [loading] = useState(false)
+  const { fonts, loading } = useFonts()
+  const { results, ai_loading, suggestFonts } = useAISuggestFonts(fonts)
+
+  const [sLoading, setSLoading] = useState(false)
   const [lay, setLay] = useState<'default' | 'grid'>('default')
-  const [isOption, setIsOption] = useState(true)
+  const [isFilterMore, setIsFilterMore] = useState(false)
+  const [isOption, setIsOption] = useState(false)
   const [text, setText] = useState(
     'Dream big, work hard, stay focused, embrace challenges, and turn your vision into reality with passion, persistence, and purpose.',
   )
-  const [fontSize, setFontSize] = useState(32)
+  const [search, setSearch] = useState('')
+  const [fontSize, setFontSize] = useState(26)
   const [fontWeight, setFontWeight] = useState(400)
   const [activeCategory, setActiveCategory] = useState<string | null>('all')
   const [textType, setTextType] = useState<
     'def' | 'par' | 'let_num' | 'sym' | 'cus'
   >('def')
 
-  // Add this helper function to set the text based on selection
   const handleTextTypeChange = (type: typeof textType) => {
     setTextType(type)
     switch (type) {
@@ -78,199 +87,283 @@ export default function Fonts() {
     }
   }
 
-  const categories = [
-    'all',
-    'Logo',
-    'Gaming',
-    'Landing Page',
-    'Hero Section',
-    'Blog',
-    'Portfolio',
-    'Corporate',
-    'Business',
-    'Creative',
-    'Display',
-    'Handwriting',
-    'Monospace',
-    'Serif',
-    'Sans-serif',
-    'Modern',
-    'Classic',
-    'Minimal',
-    'Tech',
-    'Education',
-    'Kids',
-    'Branding',
-    'Web',
-    'UI',
-    'Print',
-    'Magazine',
-    'Social Media',
-    'Poster',
-    'Creative Projects',
-  ]
+  const quickSearchCategories: Record<string, string[]> = {
+    all: [],
+    Logo: [],
+    Gaming: [],
+    'Landing Page': [],
+    'Hero Section': [],
+    Blog: [],
+    Portfolio: [],
+    Corporate: [],
+    Business: [],
+    Creative: [],
+    Display: [],
+    Handwriting: [],
+    Monospace: [],
+    Serif: [],
+    'Sans-serif': [],
+    Modern: [],
+    Classic: [],
+    Minimal: [],
+    Tech: [],
+    Education: [],
+    Kids: [],
+    Branding: [],
+    Web: [],
+    UI: [],
+    Print: [],
+    Magazine: [],
+    'Social Media': [],
+    Poster: [],
+    'Creative Projects': [],
+    'Mobile App': [],
+    'Crypto / Blockchain': [],
+    'Esports / Streaming': [],
+    'NFT / Web3': [],
+    'Futuristic / Sci-Fi': [],
+    'Indie Game': [],
 
-  // fake data with category assigned
-  const data = [
-    {
-      id: 1,
-      name: 'Roboto Slab',
-      category: 'Logo',
-      styles: 6,
-      type: 'Serif',
-      designer: 'Christian Robertson',
-      releaseYear: 2011,
-      license: 'Apache 2.0',
-      popularity: 95,
-      sampleText: 'The quick brown fox jumps over the lazy dog.',
-      fileSize: '120KB',
-      languages: ['Latin', 'Cyrillic', 'Greek'],
-      tags: ['Professional', 'Corporate', 'Modern'],
-      recommendedUse: ['Logos', 'Headings', 'Branding'],
-      story: `Roboto Slab was designed to complement the original Roboto typeface family. Its geometric shapes and friendly curves make it suitable for professional branding, print, and web interfaces.`,
-      origin: 'USA',
-      systems: ['Google Fonts'],
-      notableProjects: ['Android Material Design', 'Corporate Branding'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Merriweather', 'Lora'],
-      contribution:
-        'Open source font widely used in tech and corporate projects.',
-      description:
-        'A modern serif font blending mechanical and friendly curves.',
-      fontFamily: "'Roboto Slab', serif",
-    },
-    {
-      id: 2,
-      name: 'Montserrat',
-      category: 'Gaming',
-      styles: 8,
-      type: 'Sans-serif',
-      designer: 'Julieta Ulanovsky',
-      releaseYear: 2010,
-      license: 'SIL Open Font License',
-      popularity: 88,
-      sampleText: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789',
-      fileSize: '130KB',
-      languages: ['Latin', 'Vietnamese'],
-      tags: ['Modern', 'Tech', 'Gaming'],
-      recommendedUse: ['Web', 'Gaming', 'UI'],
-      story: `Inspired by the old posters and signs in Buenos Aires. Revives urban typography for modern digital use.`,
-      origin: 'Argentina',
-      systems: ['Google Fonts', 'FontShare'],
-      notableProjects: ['Game interfaces', 'Web dashboards', 'Branding'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Raleway', 'Open Sans'],
-      contribution: 'Widely adopted in tech, gaming, and digital platforms.',
-      description: 'A geometric sans-serif font ideal for digital projects.',
-      fontFamily: "'Montserrat', sans-serif",
-    },
-    {
-      id: 3,
-      name: 'Open Sans',
-      category: 'Landing Page',
-      styles: 10,
-      type: 'Sans-serif',
-      designer: 'Steve Matteson',
-      releaseYear: 2011,
-      license: 'Apache 2.0',
-      popularity: 92,
-      sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-      fileSize: '140KB',
-      languages: ['Latin', 'Cyrillic', 'Greek', 'Vietnamese'],
-      tags: ['Readable', 'Professional', 'UI'],
-      recommendedUse: ['Landing Pages', 'Paragraphs', 'UI'],
-      story: `Optimized for legibility across print, web, and mobile interfaces. Neutral yet friendly.`,
-      origin: 'USA',
-      systems: ['Google Fonts'],
-      notableProjects: ['Websites', 'Apps', 'Corporate UI'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Roboto', 'Lato'],
-      contribution: 'One of the most widely used web fonts worldwide.',
-      description: 'Optimized for readability for web, mobile, and print.',
-      fontFamily: "'Open Sans', sans-serif",
-    },
-    {
-      id: 4,
-      name: 'Lora',
-      category: 'Hero Section',
-      styles: 5,
-      type: 'Serif',
-      designer: 'Cyreal',
-      releaseYear: 2011,
-      license: 'SIL Open Font License',
-      popularity: 80,
-      sampleText: 'The quick brown fox jumps over the lazy dog.',
-      fileSize: '110KB',
-      languages: ['Latin', 'Cyrillic'],
-      tags: ['Elegant', 'Readable', 'Classic'],
-      recommendedUse: ['Hero Sections', 'Paragraphs', 'Blog Posts'],
-      story: `Well-balanced contemporary serif with roots in calligraphy.`,
-      origin: 'Russia',
-      systems: ['Google Fonts'],
-      notableProjects: ['Editorial Design', 'Website Headers'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Merriweather', 'Roboto Slab'],
-      contribution: 'Popular for creative and editorial projects.',
-      description: 'Blends classic elegance with modern readability.',
-      fontFamily: "'Lora', serif",
-    },
-    {
-      id: 5,
-      name: 'Poppins',
-      category: 'Blog',
-      styles: 7,
-      type: 'Sans-serif',
-      designer: 'Indian Type Foundry',
-      releaseYear: 2014,
-      license: 'SIL Open Font License',
-      popularity: 85,
-      sampleText: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789',
-      fileSize: '125KB',
-      languages: ['Latin', 'Devanagari'],
-      tags: ['Modern', 'Geometric', 'Clean'],
-      recommendedUse: ['Blogs', 'Websites', 'UI'],
-      story: `Geometric sans-serif typeface with support for Latin and Devanagari scripts.`,
-      origin: 'India',
-      systems: ['Google Fonts', 'FontShare'],
-      notableProjects: ['Blogs', 'Web Apps', 'Mobile UI'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Raleway', 'Montserrat'],
-      contribution: 'Favored for tech and modern web interfaces.',
-      description: 'Clean geometric sans-serif font for modern interfaces.',
-      fontFamily: "'Poppins', sans-serif",
-    },
-    {
-      id: 6,
-      name: 'Raleway',
-      category: 'Portfolio',
-      styles: 9,
-      type: 'Sans-serif',
-      designer: 'Multiple Designers',
-      releaseYear: 2010,
-      license: 'SIL Open Font License',
-      popularity: 78,
-      sampleText: 'The quick brown fox jumps over the lazy dog.',
-      fileSize: '115KB',
-      languages: ['Latin'],
-      tags: ['Elegant', 'Modern', 'Headings'],
-      recommendedUse: ['Portfolio', 'Headings', 'Branding'],
-      story: `Elegant sans-serif originally designed as a single thin weight, now a full family.`,
-      origin: 'USA',
-      systems: ['Google Fonts'],
-      notableProjects: ['Portfolio Sites', 'Branding Projects'],
-      supportedCountries: ['Global'],
-      similarFonts: ['Montserrat', 'Poppins'],
-      contribution: 'Frequently used for creative portfolios and websites.',
-      description: 'Elegant sans-serif font ideal for headings and branding.',
-      fontFamily: "'Raleway', sans-serif",
-    },
-  ]
+    'Startup Pitch': [],
+    'Personal Branding': [],
+    'Retro / Vaporwave': [],
+    'Metaverse / VR': [],
+    'Fashion / Lifestyle': [],
+    'Event / Invitation': [],
 
-  // filtered data based on selected category
-  const filteredData =
-    activeCategory !== 'all'
-      ? data.filter((d) => d.category === activeCategory)
-      : data
+    'Digital Art / Illustration': [],
+    'Minimal Portfolio': [],
+    'Podcast / Audio Branding': [],
+
+    'Luxury / Premium': [],
+    'Handmade / Craft': [],
+    'Eco / Sustainability': [],
+
+    'AI / Tech': [],
+
+    'Mobile Gaming': [],
+    'Web3 Finance': [],
+    'Coding / Dev': [],
+  }
+
+  function autoCategorizeFonts(fonts: GoogleFontsResponse['items']) {
+    const mapping: Record<string, string[]> = { ...quickSearchCategories }
+
+    fonts.forEach((f) => {
+      const family = f.family
+      const cat = f.category.toLowerCase()
+      const name = family.toLowerCase()
+
+      // Always add to 'all'
+      mapping.all.push(family)
+
+      // ===== Main category mapping =====
+      switch (cat) {
+        case 'display':
+          mapping.Display.push(family)
+          mapping.Logo.push(family)
+          mapping.Poster.push(family)
+          mapping.Creative.push(family)
+          mapping.Gaming.push(family)
+          mapping['Hero Section'].push(family)
+          break
+        case 'handwriting':
+          mapping.Handwriting.push(family)
+          mapping['Creative Projects'].push(family)
+          mapping.Kids.push(family)
+          mapping['Minimal Portfolio'].push(family)
+          break
+        case 'monospace':
+          mapping.Monospace.push(family)
+          mapping.Tech.push(family)
+          mapping['Coding / Dev'].push(family) // optional new
+          break
+        case 'serif':
+          mapping.Serif.push(family)
+          mapping.Classic.push(family)
+          mapping.Print.push(family)
+          mapping.Magazine.push(family)
+          mapping.Education.push(family)
+          mapping['Luxury / Premium'].push(family)
+          break
+        case 'sans-serif':
+          mapping['Sans-serif'].push(family)
+          mapping.Web.push(family)
+          mapping.UI.push(family)
+          mapping['Landing Page'].push(family)
+          mapping.Corporate.push(family)
+          mapping.Business.push(family)
+          mapping.Modern.push(family)
+          mapping.Minimal.push(family)
+          break
+        default:
+          mapping.Modern.push(family)
+          mapping.Creative.push(family)
+          break
+      }
+
+      // ===== Keyword-based boosts =====
+      const boosts: { keys: string[]; categories: string[] }[] = [
+        {
+          keys: ['logo', 'bebas', 'anton', 'lux', 'gold'],
+          categories: ['Logo', 'Branding'],
+        },
+        {
+          keys: ['gaming', 'press', 'game', 'gamer', 'esport', 'stream'],
+          categories: [
+            'Gaming',
+            'Esports / Streaming',
+            'Indie Game',
+            'Mobile Gaming',
+          ],
+        },
+        { keys: ['blog', 'merriweather', 'news'], categories: ['Blog'] },
+        {
+          keys: ['portfolio', 'quicksand', 'nunito', 'minimal'],
+          categories: ['Portfolio', 'Minimal Portfolio'],
+        },
+        {
+          keys: ['hero', 'playfair', 'poppins', 'raleway'],
+          categories: ['Hero Section'],
+        },
+        {
+          keys: ['social', 'pacifico', 'instagram', 'facebook', 'twitter'],
+          categories: ['Social Media'],
+        },
+        {
+          keys: ['branding', 'personal'],
+          categories: ['Branding', 'Personal Branding'],
+        },
+        { keys: ['poster', 'impact', 'headline'], categories: ['Poster'] },
+        {
+          keys: ['creative', 'bangers', 'fredoka', 'art', 'illustration'],
+          categories: ['Creative Projects', 'Digital Art / Illustration'],
+        },
+        { keys: ['education', 'noto', 'libre'], categories: ['Education'] },
+        { keys: ['kids', 'baloo', 'comic', 'children'], categories: ['Kids'] },
+        { keys: ['corporate', 'lato', 'open sans'], categories: ['Corporate'] },
+        {
+          keys: ['business', 'work sans', 'ibm plex'],
+          categories: ['Business'],
+        },
+        { keys: ['mobile', 'app'], categories: ['Mobile App'] },
+        {
+          keys: ['crypto', 'blockchain', 'web3', 'nft', 'pixel', 'collectible'],
+          categories: ['Crypto / Blockchain', 'NFT / Web3', 'Web3 Finance'],
+        },
+        {
+          keys: ['futur', 'sci-fi', 'space'],
+          categories: ['Futuristic / Sci-Fi'],
+        },
+        { keys: ['pitch', 'startup'], categories: ['Startup Pitch'] },
+        {
+          keys: ['podcast', 'audio'],
+          categories: ['Podcast / Audio Branding'],
+        },
+        { keys: ['retro', 'vaporwave'], categories: ['Retro / Vaporwave'] },
+        { keys: ['luxury', 'premium'], categories: ['Luxury / Premium'] },
+        { keys: ['handmade', 'craft'], categories: ['Handmade / Craft'] },
+        { keys: ['eco', 'sustain'], categories: ['Eco / Sustainability'] },
+        { keys: ['fashion', 'lifestyle'], categories: ['Fashion / Lifestyle'] },
+        { keys: ['event', 'invitation'], categories: ['Event / Invitation'] },
+        {
+          keys: ['ai', 'machine', 'intelligence', 'robot'],
+          categories: ['AI / Tech'],
+        },
+        {
+          keys: ['vr', 'metaverse', 'mixed reality'],
+          categories: ['Metaverse / VR'],
+        },
+        { keys: ['pitch', 'startup'], categories: ['Startup Pitch'] },
+        { keys: ['retro', 'vaporwave'], categories: ['Retro / Vaporwave'] },
+        {
+          keys: ['vr', 'metaverse', 'mixed reality'],
+          categories: ['Metaverse / VR'],
+        },
+        { keys: ['fashion', 'lifestyle'], categories: ['Fashion / Lifestyle'] },
+        { keys: ['event', 'invitation'], categories: ['Event / Invitation'] },
+      ]
+
+      boosts.forEach((boost) => {
+        boost.keys.forEach((k) => {
+          if (name.includes(k)) {
+            boost.categories.forEach((c) => mapping[c].push(family))
+          }
+        })
+      })
+    })
+
+    // ===== Remove duplicates =====
+    Object.keys(mapping).forEach((key) => {
+      mapping[key] = Array.from(new Set(mapping[key]))
+    })
+
+    return mapping
+  }
+
+  const categorizedFonts = autoCategorizeFonts(fonts)
+  // console.log(categorizedFonts)
+
+  const loadedFonts = useRef<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (!search) {
+      setSLoading(false)
+      return
+    }
+
+    setSLoading(true)
+    const timer = setTimeout(() => {
+      // simulate search done
+      setSLoading(false)
+    }, 500) // adjust debounce time
+
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const parentRef = useRef<HTMLDivElement>(null)
+  const rowHeights = useRef<number[]>([])
+
+  const filteredFonts =
+    results.length > 0
+      ? results.filter((f) =>
+          !activeCategory || activeCategory === 'all'
+            ? true
+            : categorizedFonts[activeCategory]?.includes(f.family),
+        )
+      : fonts.filter((f) => {
+          let matchCategory = true
+          if (activeCategory && activeCategory !== 'all') {
+            const categoryFonts = categorizedFonts[activeCategory] || []
+            matchCategory = categoryFonts.includes(f.family)
+          }
+          const matchSearch =
+            !search || f.family.toLowerCase().includes(search.toLowerCase())
+          return matchCategory && matchSearch
+        })
+
+  const virtualizer = useVirtualizer({
+    count: filteredFonts.length,
+    getScrollElement: () => parentRef.current, // <-- use getScrollElement
+    estimateSize: (index: number) => rowHeights.current[index] || 200,
+    overscan: 5,
+  })
+
+  const loadFont = (family: string, url: string) => {
+    if (!loadedFonts.current.has(family)) {
+      const style = document.createElement('style')
+      style.innerHTML = `
+        @font-face {
+          font-family: '${family}';
+          src: url('${url}') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+        }
+      `
+      document.head.appendChild(style)
+      loadedFonts.current.add(family)
+    }
+  }
 
   return (
     <>
@@ -283,24 +376,38 @@ export default function Fonts() {
           transition={{ duration: 0.3 }}
         >
           <Card className="flex-row items-center md:w-xl px-5 gap-0 py-2.5 mx-auto mt-10 rounded-lg">
-            {loading ? (
+            {sLoading || ai_loading ? (
               <Loader size={26} className="animate-spin" />
             ) : (
               <Popover>
                 <PopoverTrigger>
                   <TooltipBtn label="Model" icon={<Sparkles />} />
                 </PopoverTrigger>
-                <PopoverContent>
-                  Place content for the popover here.
+                <PopoverContent className="flex flex-col items-center">
+                  <Fan className="animate-spin" />
+                  <h1 className="text-lg">Coming Soon</h1>
+                  <p className="text-sm text-zinc-400">
+                    AI model selection will be available in future updates.
+                  </p>
                 </PopoverContent>
               </Popover>
             )}
             <Input
               type="search"
               className="bg-transparent! outline-0 border-0 placeholder:text-zinc-400"
-              placeholder="Search your Typography"
+              placeholder="Describe your project (AI will suggest fonts)"
+              onChange={(e) => {
+                setSearch(e.target.value)
+                // Clear AI results if user types a new query
+                if (results.length > 0) results.splice(0, results.length)
+              }}
             />
-            <TooltipBtn label="Magic" icon={<WandSparkles />} />
+            <TooltipBtn
+              label="Magic"
+              icon={<WandSparkles />}
+              disable={ai_loading}
+              action={() => suggestFonts(search)}
+            />
             <TooltipBtn label="Filter" icon={<SlidersHorizontal />} />
             <TooltipBtn label="Keywords" icon={<Key />} />
           </Card>
@@ -320,7 +427,7 @@ export default function Fonts() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Button
-                  disabled={data.length <= 0}
+                  disabled={fonts.length <= 0}
                   variant={isOption ? 'secondary' : 'ghost'}
                   onClick={() => setIsOption(!isOption)}
                   size="sm"
@@ -336,14 +443,15 @@ export default function Fonts() {
 
                 <div className="font-inter font-medium flex items-center gap-1">
                   <Badge variant={'secondary'}>
-                    Total {data.length <= 9 ? '0' + data.length : data.length}
+                    Total{' '}
+                    {fonts.length <= 9 ? '0' + fonts.length : fonts.length}
                   </Badge>
                   <Shuffle size={15} />
                   <Badge variant={'outline'}>
-                    {filteredData.length <= 9
-                      ? '0' + filteredData.length
-                      : filteredData.length}{' '}
-                    fonts
+                    {filteredFonts.length <= 9
+                      ? '0' + filteredFonts.length
+                      : filteredFonts.length}{' '}
+                    Find
                   </Badge>
                 </div>
               </div>
@@ -351,14 +459,14 @@ export default function Fonts() {
                 <TooltipBtn
                   label="Grid"
                   icon={<LayoutGrid />}
-                  disable={data.length <= 0}
+                  disable={fonts.length <= 0}
                   variant={lay === 'grid' ? 'secondary' : 'ghost'}
                   action={() => setLay('grid')}
                 />
                 <TooltipBtn
                   label="List"
                   icon={<AlignJustify />}
-                  disable={data.length <= 0}
+                  disable={fonts.length <= 0}
                   variant={lay !== 'grid' ? 'secondary' : 'ghost'}
                   action={() => setLay('default')}
                 />
@@ -456,36 +564,53 @@ export default function Fonts() {
 
         <div className="mt-6">
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-center">
-              Filter by Category
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-center">
+                Filter by Category{' '}
+              </h3>
+              <Button
+                onClick={() => setIsFilterMore(!isFilterMore)}
+                variant={isFilterMore ? 'ghost' : 'secondary'}
+                size={'sm'}
+                className="relative"
+              >
+              <ListFilter />
+                <Badge
+                  className="absolute -top-3 -right-3 text-xs"
+                  variant={'secondary'}
+                >
+                  {Object.keys(quickSearchCategories).length}
+                </Badge>
+              </Button>
+            </div>
             <div className="flex flex-wrap gap-2">
-              {categories.map((cat, i) => {
-                // Check if this category is currently active and has no data
-                const isEmptyAfterClick =
-                  activeCategory === cat && filteredData.length === 0
-
-                return (
-                  <Badge
-                    key={i}
-                    onClick={() =>
-                      setActiveCategory(activeCategory === cat ? null : cat)
-                    }
-                    variant={
-                      isEmptyAfterClick
-                        ? 'secondary'
-                        : activeCategory === cat
-                        ? 'default'
-                        : 'outline'
-                    }
-                    className={`cursor-pointer transition-colors px-3 py-1 ${
-                      isEmptyAfterClick ? 'text-red-500 border-red-500' : ''
-                    }`}
-                  >
-                    {cat}
-                  </Badge>
-                )
-              })}
+              {Object.keys(quickSearchCategories)
+                .slice(0, isFilterMore ? 30 : -1)
+                .map((cat, i) => {
+                  // Check if this category is currently active and has no data
+                  const isEmptyAfterClick =
+                    activeCategory === cat && filteredFonts.length === 0
+                  return (
+                    <Badge
+                      key={i}
+                      onClick={() =>
+                        setActiveCategory(activeCategory === cat ? null : cat)
+                      }
+                      variant={
+                        isEmptyAfterClick
+                          ? 'secondary'
+                          : activeCategory === cat
+                          ? 'default'
+                          : 'outline'
+                      }
+                      className={`cursor-pointer transition-colors px-3 py-1 ${
+                        isEmptyAfterClick ? 'text-red-500 border-red-500' : ''
+                      }`}
+                    >
+                      {cat}
+                    </Badge>
+                  )
+                })}
             </div>
           </Card>
         </div>
@@ -493,103 +618,145 @@ export default function Fonts() {
         {/* Font List */}
         <div className="mt-16">
           <AnimatePresence mode="wait">
-            {filteredData.length <= 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Card className="w-xl mx-auto my-32">
-                  <CardContent className="text-center py-10">
-                    <ShieldAlert
-                      size={95}
-                      strokeWidth={1}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-3xl font-semibold">
-                      Oops! Nothing found
-                    </h3>
-                    <p className="text-sm mt-2 text-zinc-400">
-                      Looks like we don’t have what you searched for. Try a
-                      different keyword or request it below.
-                    </p>
-                    <Button className="mt-5 mx-auto px-6" variant={'secondary'}>
-                      Request a Font
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
+            {loading ? (
+              <Loader
+                size={66}
+                className="animate-spin mx-auto mt-32"
+                strokeWidth={1}
+              />
             ) : (
-              <motion.div
-                key="list"
-                initial="hidden"
-                animate="show"
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: { opacity: 1, transition: { staggerChildren: 0.07 } },
-                }}
-                className={`grid gap-7 ${
-                  lay === 'default' ? 'grid-cols-1' : 'grid-cols-2'
-                }`}
-              >
-                {filteredData.map((l) => (
+              <>
+                {filteredFonts.length <= 0 ? (
                   <motion.div
-                    key={l.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                   >
-                    <Card className="hover:border-zinc-700 transition-colors">
-                      <CardContent className="pt-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <h1 className="text-2xl font-medium">{l.name}</h1>
-                          <Badge variant="secondary">{l.styles} styles</Badge>
-                        </div>
-
-                        <p
-                          className="mt-3 text-wrap whitespace-pre-wrap overflow-hidden"
-                          style={{
-                            fontSize: fontSize,
-                            fontWeight: fontWeight,
-                            fontFamily: l?.fontFamily,
-                          }}
-                        >
-                          {/* {l.sampleText} */}
-                          {text}
+                    <Card className="w-xl mx-auto my-32">
+                      <CardContent className="text-center py-10">
+                        <ShieldAlert
+                          size={95}
+                          strokeWidth={1}
+                          className="mx-auto mb-4"
+                        />
+                        <h3 className="text-3xl font-semibold">
+                          Oops! Nothing found
+                        </h3>
+                        <p className="text-sm mt-2 text-zinc-400">
+                          Looks like we don’t have what you searched for. Try a
+                          different keyword or request it below.
                         </p>
-
-                        <div className="mt-7 flex items-center justify-between">
-                          <div className="flex items-center gap-2 mt-4">
-                            <Badge className="text-xs" variant="outline">
-                              {l.type}
-                            </Badge>
-                            {l.systems.map((s, idx) => (
-                              <Badge
-                                key={idx}
-                                className="text-xs"
-                                variant="outline"
-                              >
-                                {s}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className="mt-4 flex items-center justify-end gap-2">
-                            <Button size="sm" variant="default">
-                              <PackagePlus className="mr-1 h-4 w-4" /> Use it
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <Grid2x2Plus className="mr-1 h-4 w-4" /> Add to
-                              Store
-                            </Button>
-                          </div>
-                        </div>
+                        <Button
+                          className="mt-5 mx-auto px-6"
+                          variant={'secondary'}
+                        >
+                          Request a Font
+                        </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
-              </motion.div>
+                ) : (
+                  <motion.div
+                    key="list"
+                    initial="hidden"
+                    animate="show"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.07 },
+                      },
+                    }}
+                  >
+                    {loading ? (
+                      <p>Loading fonts...</p>
+                    ) : (
+                      <div
+                        ref={parentRef}
+                        className="mt-8 h-[80vh] overflow-auto"
+                      >
+                        <div
+                          style={{
+                            height: virtualizer.getTotalSize(),
+                            position: 'relative',
+                          }}
+                        >
+                          {virtualizer.getVirtualItems().map((virtualRow) => {
+                            const font = filteredFonts[virtualRow.index]
+                            if (!font) return null
+                            const fontUrl =
+                              font?.files['400'] ||
+                              font?.files[font?.variants[0]]
+                            if (fontUrl) loadFont(font.family, fontUrl)
+
+                            return (
+                              <div
+                                key={font.family}
+                                style={{
+                                  position: 'absolute',
+                                  top: virtualRow.start,
+                                  width: '100%',
+                                }}
+                                ref={(el) => {
+                                  if (el) {
+                                    const height =
+                                      el.getBoundingClientRect().height
+                                    if (
+                                      rowHeights.current[virtualRow.index] !==
+                                      height
+                                    ) {
+                                      rowHeights.current[virtualRow.index] =
+                                        height
+                                      virtualizer.measure()
+                                    }
+                                  }
+                                }}
+                              >
+                                <Card className="hover:border-zinc-700 transition-colors my-5">
+                                  <CardContent className="pt-5">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h1 className="text-xl font-gor">
+                                        {font.family}
+                                      </h1>
+                                    </div>
+
+                                    <p
+                                      className="mt-3 text-wrap whitespace-pre-wrap overflow-hidden"
+                                      style={{
+                                        fontFamily: `"${font.family}", ${font.category}`,
+                                        fontSize,
+                                        fontWeight,
+                                      }}
+                                    >
+                                      {text}
+                                    </p>
+
+                                    <div className="mt-7 flex items-center justify-between">
+                                      <div className="flex items-center gap-2 mt-4"></div>
+
+                                      <div className="mt-4 flex items-center justify-end gap-2">
+                                        <Button size="sm" variant="default">
+                                          <PackagePlus className="mr-1 h-4 w-4" />{' '}
+                                          Use it
+                                        </Button>
+                                        <Button size="sm" variant="ghost">
+                                          <Grid2x2Plus className="mr-1 h-4 w-4" />{' '}
+                                          Add to Store
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </>
             )}
           </AnimatePresence>
         </div>
