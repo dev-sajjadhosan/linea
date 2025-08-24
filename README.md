@@ -1,50 +1,109 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <img src="public/favicon.png" alt="Project Logo" width="150" />
+</p>
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<h1 align='center'>
+ Linea
+</h1>
 
-## Expanding the ESLint configuration
+### Linea is a modern, open-source platform that empowers designers and developers to discover, organize, and utilize fonts with ease. Our mission is to make typography exploration accessible, enjoyable, and straightforward—free from unnecessary complexity.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 🚩 Purpose
 
-- Configure the top-level `parserOptions` property like this:
+Typography is fundamental to great design, yet managing and exploring fonts can be overwhelming. **Linea** was created to transform this experience into something smooth, creative, and open-source—so that everyone can craft beautiful typography with confidence.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+## ✨ Features
+
+- **Font Discovery:** Effortlessly browse and preview a curated collection of fonts.
+- **Organization Tools:** Save, categorize, and manage your favorite fonts.
+- **Minimal & Intuitive UI:** Clean, distraction-free interface for maximum productivity.
+- **Accessible by Design:** Inclusive, user-friendly, and responsive experience.
+- **Open Source:** Built collaboratively—transparent, extensible, and community-driven.
+- **Magic Search:** On the search field tell for which work you want to do and see the result.
+
+</br>
+</br>
+
+```
+## Note:
+
+Now we are only using GoogleFonts api. But in future Linea will have his own Backend and make it free that any one can add his fonts or make it even more better.
+
+```
+</br>
+</br>
+
+## 🚀 Getting Started
+
+Clone the repository and install dependencies to get up and running locally:
+
+```bash
+git clone https://github.com/dev-sajjadhosan/linea.git
+```
+```bash
+cd linea
+```
+```bash
+npm install      # or yarn install
+```
+```bash
+npm run dev      # or yarn dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Open your browser and navigate to `http://localhost:5173` (or the displayed port).
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+---
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 🛠️ Contributing
+
+We warmly welcome contributions of all kinds—UI improvements, new fonts, additional features, and more!
+
+**To contribute:**
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature/my-feature`.
+3. Commit your changes: `git commit -m "Add my feature"`.
+4. Push to your branch: `git push origin feature/my-feature`.
+5. Open a [Pull Request](https://github.com/dev-sajjadhosan/linea/pulls).
+
+For more details, see our [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## 📦 Tech Stack
+
+| Area              | Technology                                                              |
+|-------------------|-------------------------------------------------------------------------|
+| **Framework**     | [React](https://reactjs.org/), [Axios](https://axios-http.com/), [lucide icons](https://lucide.dev/) |
+| **Styling**       | [Tailwind CSS](https://tailwindcss.com/), [ShadcnUI](https://ui.shadcn.com/)               |
+| **Font Integration** | [Google Fonts API](https://developers.google.com/fonts)                                  |
+| **TypeScript**    | Yes                                                                                        |
+| **AI**            | [Google AI](https://ai.google/)                                                            |
+ 
+
+## 📄 License
+
+This project is licensed under the [MIT License](MitLicense.md).
+
+---
+
+## 🙏 Acknowledgements
+
+- Thanks to all contributors and supporters!
+- Inspiration from the open-source and design communities.
+
+---
+
+## 💬 Contact
+
+Have questions or suggestions?  
+Open an issue, or contact the maintainer at [devsajjadhosan@gmail.com]().
+
+---
+
+> Made with ❤️ by [dev-sajjadhosan](https://github.com/dev-sajjadhosan) and the Linea community.

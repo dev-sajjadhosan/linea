@@ -17,9 +17,16 @@ export interface GoogleFontsResponse {
   items: GoogleFont[]
 }
 
-export default function useFonts() {
+interface UseFontsOptions {
+  sort?: 'alpha' | 'date' | 'popularity' | 'style' | 'trending'
+  category?: 'serif' | 'sans-serif' | 'monospace' | 'display' | 'handwriting'
+  subset?: string
+  capability?: 'WOFF2' | 'VF'
+}
+
+export default function useFonts(options: UseFontsOptions = {}) {
   const [fonts, setFonts] = useState<GoogleFont[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,11 +35,22 @@ export default function useFonts() {
       setError(null)
 
       try {
-        const API = `https://www.googleapis.com/webfonts/v1/webfonts?key=${import.meta.env.VITE_FONT_API}&sort=popularity`
+        const params = new URLSearchParams({
+          key: import.meta.env.VITE_FONT_API,
+        })
+
+        if (options.sort) params.append('sort', options.sort)
+        if (options.category) params.append('category', options.category)
+        if (options.subset) params.append('subset', options.subset)
+        if (options.capability) params.append('capability', options.capability)
+
+        const API = `https://www.googleapis.com/webfonts/v1/webfonts?${params.toString()}`
         const res = await fetch(API)
+
         if (!res.ok) throw new Error(`Failed to fetch fonts: ${res.statusText}`)
+
         const data: GoogleFontsResponse = await res.json()
-        setFonts(data.items)
+        setFonts(data.items || [])
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -41,7 +59,7 @@ export default function useFonts() {
     }
 
     fetchFonts()
-  }, [])
+  }, [options.sort, options.category, options.subset, options.capability])
 
   return { fonts, loading, error }
 }

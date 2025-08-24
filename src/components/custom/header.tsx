@@ -1,4 +1,5 @@
 import Apply from '@/components/custom/apply'
+import DropMenu from '@/components/custom/dropMenu'
 import MyStore from '@/components/custom/myStore'
 import Setting from '@/components/custom/setting'
 import { Link, useLocation } from 'react-router-dom'
@@ -35,13 +36,15 @@ export default function Header() {
   const IsPath = (path: string) => useLocation().pathname === path.toLowerCase()
   return (
     <>
-      <header className="sticky top-5 flex items-center justify-between md:w-5xl px-5 py-2  rounded-md mx-auto mt-2 bg-primary-foreground">
+      <header
+        className="sticky top-5 flex items-center justify-between lg:w-5xl px-5 py-2  rounded-md mx-auto mt-2 bg-black/30 backdrop-blur-3xl border"
+      >
         <div className="flex items-center gap-1">
-          <img src="/public/favicon.png" width={23} alt="" />
+          <img src="/public/favicon.png" width={25} alt="" />
           <h1 className="text-lg font-gor">Linea</h1>
         </div>
         <nav>
-          <ul className="flex items-center gap-5 font-inter capitalize">
+          <ul className=" hidden md:flex items-center gap-5 font-inter capitalize">
             {paths.map((l, i) => (
               <li
                 key={i}
@@ -55,6 +58,7 @@ export default function Header() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
+          <DropMenu paths={paths} IsPath={IsPath} />
           <Setting />
           <MyStore />
           <Apply />

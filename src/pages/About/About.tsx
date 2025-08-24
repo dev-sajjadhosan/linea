@@ -1,6 +1,8 @@
 import Header from '@/components/custom/header'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
+import { Github, Mail, Network, Rocket, Rss } from 'lucide-react'
 
 export default function About() {
   return (
@@ -57,6 +59,34 @@ export default function About() {
           </p>
         </motion.section>
 
+        {/* Font Data Source Card */}
+        <motion.section
+          className="mt-10"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <Card >
+            <CardContent>
+              <h2 className="text-xl font-semibold mb-2">Font Data Source</h2>
+              <p className="text-gray-300 text-sm">
+                All fonts displayed in Linea are sourced from{' '}
+                <a
+                  href="https://fonts.google.com/"
+                  target="_blank"
+                  className="underline text-blue-400"
+                  rel="noopener noreferrer"
+                >
+                  Google Fonts
+                </a>{' '}
+                via their official API. This ensures a reliable and up-to-date
+                collection of high-quality fonts for your projects.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.section>
+
         {/* Mission & Why */}
         <motion.section
           className="mt-10"
@@ -90,7 +120,15 @@ export default function About() {
             welcome. Whether it’s improving the UI, adding fonts, or building
             new features— your input helps the project grow.
           </p>
-          <Button variant="secondary">Contribute Now</Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              window.open('https://github.com/dev-sajjadhosan/linea', '_blank')
+            }
+          >
+            Contribute Now
+            <Network />
+          </Button>
         </motion.section>
 
         {/* Feedback & Collaboration */}
@@ -102,8 +140,8 @@ export default function About() {
           variants={{
             hidden: {},
             show: {
-              transition: { staggerChildren: 0.2 }
-            }
+              transition: { staggerChildren: 0.2 },
+            },
           }}
         >
           <motion.div
@@ -111,12 +149,25 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-xl font-semibold mb-2">Want to share feedback?</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              Want to share feedback?
+            </h2>
             <p className="text-gray-300 text-sm mb-3">
               Your thoughts and ideas matter. Help shape Linea into something
               better.
             </p>
-            <Button variant="secondary">Give Feedback</Button>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                window.open(
+                  'https://github.com/dev-sajjadhosan/linea/discussions',
+                  '_blank',
+                )
+              }
+            >
+              Give Feedback
+              <Rss />
+            </Button>
           </motion.div>
 
           <motion.div
@@ -132,12 +183,39 @@ export default function About() {
               with me.
             </p>
             <div className="flex items-center gap-3">
-              <Button variant="secondary">Portfolio</Button>
-              <Button className="border" variant="ghost">
-                GitHub
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  window.open(
+                    'https://mohammadsajjadhosan.vercel.app',
+                    '_blank',
+                  )
+                }
+              >
+                Portfolio
+                <Rocket />
               </Button>
-              <Button className="border" variant="ghost">
+
+              <Button
+                className="border"
+                variant="ghost"
+                onClick={() =>
+                  window.open('https://github.com/dev-sajjadhosan', '_blank')
+                }
+              >
+                GitHub
+                <Github />
+              </Button>
+
+              <Button
+                className="border"
+                variant="ghost"
+                onClick={() =>
+                  (window.location.href = 'mailto:yourmail@gmail.com')
+                }
+              >
                 G-mail
+                <Mail />
               </Button>
             </div>
           </motion.div>
@@ -158,7 +236,7 @@ export default function About() {
             {['Designers', 'Developers', 'Contributors'].map((role, i) => (
               <motion.div
                 key={role}
-                className="p-5 border rounded-xl shadow-sm hover:shadow-md transition"
+                className="p-5 rounded-xl shadow-sm hover:shadow-md transition"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.2 }}
@@ -176,6 +254,11 @@ export default function About() {
             ))}
           </div>
         </motion.section>
+
+        {/* Footer */}
+        <footer className="mt-16 text-center py-6 border-t border-zinc-700 text-gray-400 text-sm">
+          &copy; {new Date().getFullYear()} Linea. All rights reserved.
+        </footer>
       </div>
     </>
   )

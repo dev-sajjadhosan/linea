@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
 import { GoogleGenAI } from '@google/genai'
 import { toast } from 'sonner'
 
 type Font = {
-  files: any;
-  variants: any; family: string; category: string 
+  files: any
+  variants: any
+  family: string
+  category: string
 }
 
 export function useAISuggestFonts(fonts: Font[]) {
@@ -13,7 +16,10 @@ export function useAISuggestFonts(fonts: Font[]) {
   const [error, setError] = useState<string | null>(null)
 
   const suggestFonts = async (query: string) => {
-    if (!query) return
+    if (!query)
+      return toast.warning('Please enter keyword to search fonts.', {
+        position: 'top-center',
+      })
 
     setLoading(true)
     setError(null)
