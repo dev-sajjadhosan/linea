@@ -177,7 +177,7 @@ const features = [
   },
 ]
 export default function TypographyPlayground() {
-  const { fonts, loading } = useFonts()
+  const { fonts } = useFonts()
 
   const [isMobile, setIsMobile] = useState(false)
   const [isCollapse, setIsCollapse] = useState(true)
@@ -187,7 +187,7 @@ export default function TypographyPlayground() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [history, setHistory] = useState<TextBox[][]>([])
   const [redoStack, setRedoStack] = useState<TextBox[][]>([])
-  const [activeFont,setActiveFont] = useState<string>('Roboto, sans-serif') //setActiveFont
+  const [activeFont] = useState<string>('Roboto, sans-serif') //setActiveFont
   const [openId, setOpenId] = useState<string | null>(null)
   const [isActive, setIsActive] = useState(false)
 
@@ -997,7 +997,7 @@ export default function TypographyPlayground() {
                     </SelectTrigger>
                     <SelectContent>
                       {fonts.map((f) => (
-                        <SelectItem key={f.family} value={f.family} >
+                        <SelectItem key={f.family} value={f.family}>
                           {f.family}
                         </SelectItem>
                       ))}
