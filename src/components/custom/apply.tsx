@@ -12,25 +12,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useGenerateGoogleFontsUrl } from '@/hooks/useGenerateGoogleFontsUrl'
 import { useFontStore } from '@/store/FontStore'
 import { useMyStore } from '@/store/myStore'
 import { generateFontSnippets } from '@/utils/generateFontSnippets'
+import { generateTailwindSnippets } from '@/utils/generateTailwindSnippets'
 import {
   ArrowDownToLine,
   Box,
   Braces,
+  Link2Off,
   RemoveFormatting,
   Share2,
   Trash2,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export default function Apply() {
   const { useFonts, useRemoveAll, useRemoveFont } = useMyStore()
+  const { css, tailwind } = generateTailwindSnippets(useFonts)
   const text = useFontStore((s) => s.text)
   const url = useGenerateGoogleFontsUrl(useFonts)
   const snippets = generateFontSnippets(useFonts)
+
   const [isCode, setIsCode] = useState(false)
 
   useEffect(() => {
@@ -73,7 +79,10 @@ export default function Apply() {
                 <Button
                   size={'sm'}
                   variant={'ghost'}
-                  onClick={useRemoveAll}
+                  onClick={() => {
+                    useRemoveAll()
+                    toast.success('Yo! Removed All.')
+                  }}
                   disabled={!useFonts.length}
                 >
                   <Trash2 />
@@ -95,19 +104,42 @@ export default function Apply() {
                     <h3 className="text-lg">
                       Embed code in the top of your css
                     </h3>
-                    <CodePre code={`@import url('${url}');`} />
-                    <div className="flex flex-col gap-6 mt-7">
-                      {snippets.map((snippet) => (
-                        <div
-                          key={snippet.family}
-                          className="flex flex-col gap-2"
-                        >
-                          <h3 className="text-xl font-semibold">
-                            {snippet.family}
-                          </h3>
-                          <CodePre code={snippet.css} />
-                        </div>
-                      ))}
+                    <div>
+                      <CodePre code={`@import url('${url}');`} />
+                      <Tabs defaultValue="default" className="w-full mt-5">
+                        <TabsList>
+                          <TabsTrigger value="default">Default</TabsTrigger>
+                          <TabsTrigger value="tailwind">Tailwind</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="default">
+                          <div className="flex flex-col gap-6 mt-2.5">
+                            {snippets.map((snippet) => (
+                              <div
+                                key={snippet.family}
+                                className="flex flex-col gap-2"
+                              >
+                                <h3 className="text-xl font-semibold">
+                                  {snippet.family}
+                                </h3>
+                                <CodePre code={snippet.css} />
+                              </div>
+                            ))}
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="tailwind">
+                          <div className="flex flex-col gap-6 mt-2.5">
+                            {/* Regular CSS */}
+                            <h3 className="text-lg font-semibold">
+                              Regular CSS
+                            </h3>
+                            <CodePre code={css} />
+                            <h3 className="text-lg font-semibold mt-2">
+                              Tailwind CSS
+                            </h3>
+                            <CodePre code={tailwind} />
+                          </div>
+                        </TabsContent>
+                      </Tabs>
                     </div>
                   </div>
                 ) : (
@@ -143,12 +175,20 @@ export default function Apply() {
                               <div className="flex items-center justify-end gap-2.5 mt-2">
                                 <TooltipBtn
                                   label="Trash"
-                                  icon={<Trash2 />}
-                                  action={() => useRemoveFont(font?.family)}
+                                  icon={<Link2Off />}
+                                  action={() => {
+                                    useRemoveFont(font?.family)
+                                    toast.success('Yo! Removed Select Font.')
+                                  }}
                                 />
                                 <TooltipBtn
                                   label="Download"
                                   icon={<ArrowDownToLine />}
+                                  action={() => {
+                                    toast.warning(
+                                      'Yo! Downloaded features not available.',
+                                    )
+                                  }}
                                 />
                               </div>
                             </CardContent>

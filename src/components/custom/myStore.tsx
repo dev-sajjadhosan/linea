@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import TooltipBtn from '@/components/custom/Tooltipbtn'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,15 +16,24 @@ import { useFontStore } from '@/store/FontStore'
 import { useMyStore } from '@/store/myStore'
 import {
   ArrowBigDownDash,
-  Check,
+  Link2Off,
   Store,
   TextSearch,
   Trash2,
+  Link2,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 
 export default function MyStore() {
-  const { myFonts, removeFont, removeAll } = useMyStore()
+  const {
+    myFonts,
+    removeFont,
+    removeAll,
+    useAddFont,
+    useHasFont,
+    useRemoveFont,
+  } = useMyStore()
   const text = useFontStore((s) => s.text)
   return (
     <>
@@ -40,7 +50,10 @@ export default function MyStore() {
                 <TooltipBtn
                   label="Trash All"
                   icon={<Trash2 />}
-                  action={removeAll}
+                  action={() => {
+                    removeAll()
+                    toast.success('Yo! Removed All Fonts.')
+                  }}
                   disable={myFonts.length > 0 ? false : true}
                 />
                 {/* <TooltipBtn label='Trash All' icon={<Trash2 />} /> */}
@@ -49,6 +62,9 @@ export default function MyStore() {
                   icon={<ArrowBigDownDash />}
                   variant="secondary"
                   disable={myFonts.length >= 2 ? false : true}
+                  action={() => {
+                    toast.warning('Yo! Export features not available.')
+                  }}
                 />
               </div>
             </DialogTitle>
@@ -88,18 +104,38 @@ export default function MyStore() {
                         </div>
                         <p className="text-sm">{text}</p>
                       </div>
-                      <Separator orientation="vertical" className="h-24! w-1! rounded-full" />
+                      <Separator
+                        orientation="vertical"
+                        className="h-24! w-1! rounded-full"
+                      />
                       <div className="flex flex-col gap-2.5">
-                        <TooltipBtn
-                          label="Use it"
-                          icon={<Check />}
-                          // action={() => setAsDefault(font.family)}
-                          variant="secondary"
-                        />
+                        {useHasFont(font.family) ? (
+                          <TooltipBtn
+                            label="Remove Select"
+                            icon={<Link2Off />}
+                            action={() => {
+                              useRemoveFont(font.family)
+                              toast.success('Yo! Removed from Select.')
+                            }}
+                          />
+                        ) : (
+                          <TooltipBtn
+                            label="Use it"
+                            icon={<Link2 />}
+                            action={() => {
+                              useAddFont(font)
+                              toast.success('Yo! Added Select Font.')
+                            }}
+                            variant="secondary"
+                          />
+                        )}
                         <TooltipBtn
                           label="Remove"
                           icon={<Trash2 />}
-                          action={() => removeFont(font.family)}
+                          action={() => {
+                            removeFont(font.family)
+                            toast.success('Yo! Removed from Store.')
+                          }}
                         />
                       </div>
                     </Card>

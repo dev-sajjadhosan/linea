@@ -34,7 +34,7 @@ export default function CodePre({ code }: { code: string }) {
           </>
         )}
       </Button>
-      <pre className="whitespace-pre-wrap break-all text-sm leading-5.5 overflow-x-auto px-5">
+      <pre className="whitespace-pre-wrap break-all text-sm leading-5.5 overflow-x-auto px-5 pointer-none">
         <code>{code}</code>
       </pre>
     </Card>

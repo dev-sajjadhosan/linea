@@ -43,7 +43,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <FontLoaderProvider>
       <ThemeProvider defaultTheme="dark">
-        <Toaster richColors />
+        <Toaster richColors position='top-left' />
         <div className="flex items-center justify-center h-screen">
           <div className="w-11/12 h-full">
             <RouterProvider router={routes} />

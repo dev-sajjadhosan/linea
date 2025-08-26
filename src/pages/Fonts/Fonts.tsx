@@ -22,15 +22,16 @@ import {
   ChevronDown,
   Grid2x2Plus,
   LayoutGrid,
+  Link2,
   ListFilter,
   Loader,
-  PackagePlus,
   RotateCcw,
   ShieldAlert,
   Shuffle,
   // SlidersHorizontal,
   Sparkles,
   Trash2,
+  Unlink,
   WandSparkles,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -42,6 +43,7 @@ import {
 } from '@/pages/Fonts/supply'
 import { useMyStore } from '@/store/myStore'
 import PreKeywords from '@/components/custom/PreKeyword'
+import { toast } from 'sonner'
 
 export default function Fonts() {
   const {
@@ -232,7 +234,7 @@ export default function Fonts() {
                     {filteredFonts.length <= 9
                       ? '0' + filteredFonts.length
                       : filteredFonts.length}{' '}
-                    Find
+                    Found
                   </Badge>
                 </div>
               </div>
@@ -268,10 +270,10 @@ export default function Fonts() {
                     <div className="flex items-center gap-3 md:w-3xl">
                       <Select
                         value={textType}
-                        onValueChange={(val) =>
-                          // handleTextTypeChange(val)
+                        onValueChange={(val) => {
+                          toast.info(`Text type changed -- ${val}`)
                           setTextType(val as TextType)
-                        }
+                        }}
                       >
                         <SelectTrigger className="w-[170px] border-0">
                           <SelectValue placeholder="Text Type" />
@@ -318,7 +320,10 @@ export default function Fonts() {
                         <TooltipBtn
                           label="reset"
                           icon={<RotateCcw />}
-                          action={() => setFontSize(32)}
+                          action={() => {
+                            setFontSize(32)
+                            toast.warning('Reset Font Size!')
+                          }}
                         />
                       </div>
 
@@ -337,7 +342,10 @@ export default function Fonts() {
                         <TooltipBtn
                           label="reset"
                           icon={<RotateCcw />}
-                          action={() => setFontWeight(400)}
+                          action={() => {
+                            setFontWeight(400)
+                            toast.warning('Reset Font Weight!')
+                          }}
                         />
                       </div>
                     </div>
@@ -411,7 +419,13 @@ export default function Fonts() {
         </div>
         <div className="mt-7">
           <Card className="flex-row justify-between p-5">
-            <Select value={sort} onValueChange={(v: SortType) => setSort(v)}>
+            <Select
+              value={sort}
+              onValueChange={(v: SortType) => {
+                setSort(v)
+                toast.warning(`Font Sort by -- ${sort}`)
+              }}
+            >
               <SelectTrigger className="w-[170px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -424,7 +438,13 @@ export default function Fonts() {
               </SelectContent>
             </Select>
 
-            <Select value={subset} onValueChange={(v) => setSubset(v)}>
+            <Select
+              value={subset}
+              onValueChange={(v) => {
+                setSubset(v)
+                toast.warning(`Font Subset by -- ${subset}`)
+              }}
+            >
               <SelectTrigger className="w-[170px]">
                 <SelectValue placeholder="Language Support" />
               </SelectTrigger>
@@ -493,6 +513,11 @@ export default function Fonts() {
                             <Button
                               className="mt-5 mx-auto px-6"
                               variant={'secondary'}
+                              onClick={() =>
+                                toast.warning(
+                                  'This feature is not available yet!',
+                                )
+                              }
                             >
                               Request a Font
                             </Button>
@@ -591,21 +616,27 @@ export default function Fonts() {
                                         {hasFont(font.family) ? (
                                           <Button
                                             size="sm"
-                                            variant="outline"
-                                            onClick={() =>
+                                            variant="secondary"
+                                            onClick={() => {
                                               removeFont(font.family)
-                                            }
+                                              toast.success(
+                                                'Yo! Remove from Store.',
+                                              )
+                                            }}
                                           >
                                             <Trash2 className="mr-1 h-4 w-4" />{' '}
-                                            Remove Store
+                                            Remove
                                           </Button>
                                         ) : (
                                           <Button
                                             size="sm"
                                             variant="ghost"
-                                            onClick={() =>
+                                            onClick={() => {
                                               addFont(font as GoogleFont)
-                                            }
+                                              toast.success(
+                                                'Yo! Saved to Store.',
+                                              )
+                                            }}
                                           >
                                             <Grid2x2Plus className="mr-1 h-4 w-4" />{' '}
                                             Add to Store
@@ -614,23 +645,33 @@ export default function Fonts() {
                                         {useHasFont(font?.family) ? (
                                           <Button
                                             size="sm"
-                                            variant="outline"
-                                            onClick={() =>
+                                            variant="secondary"
+                                            onClick={() => {
                                               useRemoveFont(font.family)
-                                            }
+                                              toast.success(
+                                                'Yo! Remove from Select.',
+                                              )
+                                            }}
                                           >
-                                            <Trash2 className="mr-1 h-4 w-4" />{' '}
+                                            <Unlink />
                                             Remove Select
                                           </Button>
                                         ) : (
                                           <Button
                                             size="sm"
                                             variant="default"
-                                            onClick={() =>
+                                            onClick={() => {
                                               useAddFont(font as GoogleFont)
-                                            }
+                                              toast.success(
+                                                'Yo! Added to Select.',
+                                                {
+                                                  description:
+                                                    'Yo! Get Your Embed Code From The Apply Box!',
+                                                },
+                                              )
+                                            }}
                                           >
-                                            <PackagePlus className="mr-1 h-4 w-4" />{' '}
+                                            <Link2 />
                                             Use it
                                           </Button>
                                         )}

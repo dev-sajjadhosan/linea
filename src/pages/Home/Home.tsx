@@ -113,11 +113,11 @@ export default function Home() {
           whileInView="show"
           viewport={{ once: true }}
           variants={container}
-          className="w-11/12 mx-auto mt-32 flex flex-col gap-8"
+          className="w-11/12 mx-auto mt-32 flex flex-col gap-8 pb-11"
         >
           {/* Heading */}
           <div className="text-center">
-            <h2 className="text-4xl font-bold">Showcase Your Fonts</h2>
+            <h2 className="text-4xl font-bold">Poplars Fonts</h2>
             <p className="text-lg text-zinc-500 mt-2">
               Explore, select, and embed the perfect typography for your
               project.
@@ -139,7 +139,7 @@ export default function Home() {
                       <CardContent className="flex flex-col gap-2">
                         <Badge variant="outline">{font.category}</Badge>
                         <h3 className="text-xl font-semibold">{font.family}</h3>
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-sm text-zinc-400">
                           {font.category} • {font.variants.length} weights
                         </p>
                       </CardContent>
