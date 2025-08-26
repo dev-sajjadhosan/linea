@@ -48,7 +48,7 @@ export default function PreKeywords({
         <PopoverTrigger>
           <TooltipBtn label="Keywords" icon={<Key />} />
         </PopoverTrigger>
-        <PopoverContent className="w-xl! p-5 mt-5" side='bottom'>
+        <PopoverContent className="w-xl! p-5 mt-5" side="bottom">
           <h3 className="text-lg font-light">Example Keywords</h3>
           <ul className="mt-2.5 space-y-2 overflow-y-scroll h-[50vh] pr-3">
             {exampleQueries.map((query, index) => (
@@ -58,8 +58,10 @@ export default function PreKeywords({
                   setSearch(query)
                   toast.success('Search keyword set')
                 }}
-                className={`text-sm text-gray-300 px-3 rounded-md py-2.5 capitalize cursor-copy duration-200 border  hover:bg-zinc-900 ${
-                  query === search ? 'bg-orange-700/25' : 'bg-zinc-800'
+                className={`text-sm px-3 rounded-md py-2.5 capitalize cursor-copy duration-200 border dark:hover:bg-zinc-700  hover:bg-secondary-foreground :hover:text-secondary ${
+                  query === search
+                    ? 'bg-primary text-primary-foreground dark:bg-zinc-800 dark:text-primary'
+                    : 'bg-primary-foreground text-primary'
                 }
                     `}
               >
