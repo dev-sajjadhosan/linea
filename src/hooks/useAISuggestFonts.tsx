@@ -31,8 +31,7 @@ export function useAISuggestFonts(fonts: Font[]) {
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.0-flash-001',
-        contents: `You are a professional typography expert. Based on the project description below, suggest exactly 5 font families for a complete website: one for Logo, one for Main Heading, one for Subheading, one for Paragraph / Body text, and one for Other / Accent. 
-
+        contents: `You are a professional typography expert. Based on the project description below, suggest exactly 5 font families for a complete website: one for Logo, one for Main Heading, one for Subheading, one for Paragraph / Body text, and one for Other / Accent.
 Provide ONLY the font family names, separated by commas, with no extra words, explanations, or numbering.
 
 Project description: "${query}"`,

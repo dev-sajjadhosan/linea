@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import Header from '@/components/custom/header'
 import TooltipBtn from '@/components/custom/Tooltipbtn'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
-import useFonts from '@/hooks/useFonts'
+import useFonts, { GoogleFont } from '@/hooks/useFonts'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
@@ -20,7 +21,6 @@ import {
   AlignJustify,
   ChevronDown,
   Grid2x2Plus,
-  Key,
   LayoutGrid,
   ListFilter,
   Loader,
@@ -30,6 +30,7 @@ import {
   Shuffle,
   // SlidersHorizontal,
   Sparkles,
+  Trash2,
   WandSparkles,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -39,6 +40,8 @@ import {
   autoCategorizeFonts,
   quickSearchCategories,
 } from '@/pages/Fonts/supply'
+import { useMyStore } from '@/store/myStore'
+import PreKeywords from '@/components/custom/PreKeyword'
 
 export default function Fonts() {
   const {
@@ -62,11 +65,19 @@ export default function Fonts() {
     setSubset,
   } = useFontStore()
 
+  const {
+    hasFont,
+    addFont,
+    removeFont,
+    useAddFont,
+    useHasFont,
+    useRemoveFont,
+  } = useMyStore()
+
   const textType = useFontStore((s) => s.textType)
   const setTextType = useFontStore((s) => s.setTextType)
-  const { fonts, loading } = useFonts({
+  const { fonts, loading, totalCount } = useFonts({
     sort: sort,
-    // category: 'serif',
     subset: subset,
   })
   const { results, ai_loading, suggestFonts } = useAISuggestFonts(fonts)
@@ -167,6 +178,7 @@ export default function Fonts() {
               type="search"
               className="bg-transparent! outline-0 border-0 placeholder:text-zinc-400"
               placeholder="Describe your project (AI will suggest fonts)"
+              value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
                 if (results.length > 0) results.splice(0, results.length)
@@ -179,7 +191,7 @@ export default function Fonts() {
               action={() => suggestFonts(search)}
             />
             {/* <TooltipBtn label="Filter" icon={<SlidersHorizontal />} /> */}
-            <TooltipBtn label="Keywords" icon={<Key />} />
+            <PreKeywords setSearch={setSearch} search={search} />
           </Card>
         </motion.div>
 
@@ -213,8 +225,7 @@ export default function Fonts() {
 
                 <div className="font-inter font-medium flex items-center gap-1">
                   <Badge variant={'secondary'}>
-                    Total{' '}
-                    {fonts.length <= 9 ? '0' + fonts.length : fonts.length}
+                    Total {totalCount <= 9 ? '0' + totalCount : totalCount}
                   </Badge>
                   <Shuffle size={15} />
                   <Badge variant={'outline'}>
@@ -518,6 +529,7 @@ export default function Fonts() {
                         >
                           {virtualizer.getVirtualItems().map((virtualRow) => {
                             const font = filteredFonts[virtualRow.index]
+
                             if (!font) return null
                             const fontUrl =
                               font?.files['400'] ||
@@ -576,14 +588,52 @@ export default function Fonts() {
                                       <div className="flex items-center gap-2 mt-4"></div>
 
                                       <div className="mt-4 flex items-center justify-end gap-2">
-                                        <Button size="sm" variant="default">
-                                          <PackagePlus className="mr-1 h-4 w-4" />{' '}
-                                          Use it
-                                        </Button>
-                                        <Button size="sm" variant="ghost">
-                                          <Grid2x2Plus className="mr-1 h-4 w-4" />{' '}
-                                          Add to Store
-                                        </Button>
+                                        {hasFont(font.family) ? (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                              removeFont(font.family)
+                                            }
+                                          >
+                                            <Trash2 className="mr-1 h-4 w-4" />{' '}
+                                            Remove Store
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() =>
+                                              addFont(font as GoogleFont)
+                                            }
+                                          >
+                                            <Grid2x2Plus className="mr-1 h-4 w-4" />{' '}
+                                            Add to Store
+                                          </Button>
+                                        )}
+                                        {useHasFont(font?.family) ? (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                              useRemoveFont(font.family)
+                                            }
+                                          >
+                                            <Trash2 className="mr-1 h-4 w-4" />{' '}
+                                            Remove Select
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            size="sm"
+                                            variant="default"
+                                            onClick={() =>
+                                              useAddFont(font as GoogleFont)
+                                            }
+                                          >
+                                            <PackagePlus className="mr-1 h-4 w-4" />{' '}
+                                            Use it
+                                          </Button>
+                                        )}
                                       </div>
                                     </div>
                                   </CardContent>

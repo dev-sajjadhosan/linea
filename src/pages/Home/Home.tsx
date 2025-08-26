@@ -1,16 +1,17 @@
 import Header from '@/components/custom/header'
+import Loader from '@/components/custom/Loader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import useFonts from '@/hooks/useFonts'
 import { motion } from 'framer-motion'
-import { CaseSensitive, PlayCircle } from 'lucide-react'
-import { useState } from 'react'
+import { PlayCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Home() {
-  const [index, setIndex] = useState(0)
-  const data = [...Array(12).keys()]
-  const len = [...Array(Math.ceil(data.length / 3)).keys()]
+  const { fonts, loading } = useFonts({
+    sort: 'popularity',
+  })
 
   // Variants for smooth stagger animation
   const container = {
@@ -82,10 +83,7 @@ export default function Home() {
             className="mt-6 flex justify-center gap-4"
           >
             <Link to={'/fonts'}>
-              <Button variant="secondary">
-                Explore Fonts
-                <CaseSensitive className="ml-2" />
-              </Button>
+              <Button>Browse All Fonts</Button>
             </Link>
           </motion.div>
         </motion.div>
@@ -110,49 +108,48 @@ export default function Home() {
         </motion.div>
 
         {/* Popular Fonts */}
-        <motion.div
+        <motion.section
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={container}
-          className="w-11/12 mx-auto mt-32"
+          className="w-11/12 mx-auto mt-32 flex flex-col gap-8"
         >
-          <h3 className="text-4xl text-center">Popular Fonts</h3>
-
-          {/* Dots */}
-          <div className="flex items-center justify-end gap-1.5 mt-3">
-            {len?.map((_, i) => (
-              <span
-                key={i}
-                onClick={() => setIndex(i)}
-                className={`w-2.5 h-2.5 rounded-full duration-200 cursor-pointer ${
-                  i === index ? 'bg-primary w-5' : 'bg-zinc-800'
-                }`}
-              />
-            ))}
+          {/* Heading */}
+          <div className="text-center">
+            <h2 className="text-4xl font-bold">Showcase Your Fonts</h2>
+            <p className="text-lg text-zinc-500 mt-2">
+              Explore, select, and embed the perfect typography for your
+              project.
+            </p>
           </div>
 
-          {/* Cards */}
-          <motion.div
-            variants={container}
-            className="flex items-center gap-15 overflow-x-auto py-5 px-3"
-          >
-            {data?.map((l, i) => (
-              <motion.div key={i} variants={item}>
-                <Card className="shrink-0 w-xs h-34  cursor-pointer duration-150 hover:scale-105">
-                  <CardContent>
-                    <Badge variant="outline">Popular</Badge>
-                    <h1 className="text-xl mt-1">Inter {l}</h1>
-                    <p className="text-sm mt-1">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Placeat, voluptate!
-                    </p>
-                  </CardContent>
-                </Card>
+          {/* Font Cards Grid */}
+          <div className="">
+            {loading ? (
+              <Loader />
+            ) : (
+              <motion.div
+                variants={container}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              >
+                {fonts?.slice(0, 8)?.map((font, i) => (
+                  <motion.div key={i} variants={item}>
+                    <Card className="cursor-pointer duration-150 hover:scale-105">
+                      <CardContent className="flex flex-col gap-2">
+                        <Badge variant="outline">{font.category}</Badge>
+                        <h3 className="text-xl font-semibold">{font.family}</h3>
+                        <p className="text-sm text-zinc-500">
+                          {font.category} • {font.variants.length} weights
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
+            )}
+          </div>
+        </motion.section>
       </div>
     </>
   )

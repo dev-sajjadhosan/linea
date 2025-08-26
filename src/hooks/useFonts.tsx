@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 
 export interface GoogleFont {
   family: string
@@ -9,7 +9,7 @@ export interface GoogleFont {
   files: Record<string, string>
   category: string
   kind: string
-  menu: string
+  menu?: string // sometimes not included
 }
 
 export interface GoogleFontsResponse {
@@ -18,10 +18,9 @@ export interface GoogleFontsResponse {
 }
 
 interface UseFontsOptions {
-  sort?: 'alpha' | 'date' | 'popularity' | 'style' | 'trending'
-  category?: 'serif' | 'sans-serif' | 'monospace' | 'display' | 'handwriting'
+  sort?: "alpha" | "date" | "popularity" | "style" | "trending"
+  category?: "serif" | "sans-serif" | "monospace" | "display" | "handwriting"
   subset?: string
-  capability?: 'WOFF2' | 'VF'
 }
 
 export default function useFonts(options: UseFontsOptions = {}) {
@@ -39,10 +38,7 @@ export default function useFonts(options: UseFontsOptions = {}) {
           key: import.meta.env.VITE_FONT_API,
         })
 
-        if (options.sort) params.append('sort', options.sort)
-        if (options.category) params.append('category', options.category)
-        if (options.subset) params.append('subset', options.subset)
-        if (options.capability) params.append('capability', options.capability)
+        if (options.sort) params.append("sort", options.sort)
 
         const API = `https://www.googleapis.com/webfonts/v1/webfonts?${params.toString()}`
         const res = await fetch(API)
@@ -50,16 +46,26 @@ export default function useFonts(options: UseFontsOptions = {}) {
         if (!res.ok) throw new Error(`Failed to fetch fonts: ${res.statusText}`)
 
         const data: GoogleFontsResponse = await res.json()
-        setFonts(data.items || [])
+        let items = data.items || []
+
+        // client-side filtering
+        if (options.category) {
+          items = items.filter((f) => f.category === options.category)
+        }
+        if (options.subset) {
+          items = items.filter((f) => f.subsets.includes(options.subset!))
+        }
+
+        setFonts(items)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : "Unknown error")
       } finally {
         setLoading(false)
       }
     }
 
     fetchFonts()
-  }, [options.sort, options.category, options.subset, options.capability])
+  }, [options.sort, options.category, options.subset])
 
-  return { fonts, loading, error }
+  return { fonts, totalCount: fonts.length, loading, error }
 }
