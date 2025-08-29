@@ -30,6 +30,7 @@ import {
   Shuffle,
   // SlidersHorizontal,
   Sparkles,
+  SquareDashedBottom,
   Trash2,
   Unlink,
   WandSparkles,
@@ -93,6 +94,7 @@ export default function Fonts() {
   const loadedFonts = useRef<Set<string>>(new Set())
   const parentRef = useRef<HTMLDivElement>(null)
   const rowHeights = useRef<number[]>([])
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!search) {
@@ -178,9 +180,9 @@ export default function Fonts() {
             )}
             <Input
               type="search"
+              ref={inputRef}
               className="bg-transparent! outline-0 border-0 placeholder:text-zinc-400"
               placeholder="Describe your project (AI will suggest fonts)"
-              value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
                 if (results.length > 0) results.splice(0, results.length)
@@ -193,7 +195,11 @@ export default function Fonts() {
               action={() => suggestFonts(search)}
             />
             {/* <TooltipBtn label="Filter" icon={<SlidersHorizontal />} /> */}
-            <PreKeywords setSearch={setSearch} search={search} />
+            <PreKeywords
+              setSearch={setSearch}
+              search={search}
+              inputRef={inputRef as React.RefObject<HTMLInputElement>}
+            />
           </Card>
         </motion.div>
 
@@ -271,7 +277,6 @@ export default function Fonts() {
                       <Select
                         value={textType}
                         onValueChange={(val) => {
-                          toast.info(`Text type changed -- ${val}`)
                           setTextType(val as TextType)
                         }}
                       >
@@ -423,7 +428,6 @@ export default function Fonts() {
               value={sort}
               onValueChange={(v: SortType) => {
                 setSort(v)
-                toast.warning(`Font Sort by -- ${sort}`)
               }}
             >
               <SelectTrigger className="w-[170px]">
@@ -442,7 +446,6 @@ export default function Fonts() {
               value={subset}
               onValueChange={(v) => {
                 setSubset(v)
-                toast.warning(`Font Subset by -- ${subset}`)
               }}
             >
               <SelectTrigger className="w-[170px]">
@@ -535,7 +538,7 @@ export default function Fonts() {
                       hidden: { opacity: 0 },
                       show: {
                         opacity: 1,
-                        transition: { staggerChildren: 0.07 },
+                        transition: { staggerChildren: 0.01 },
                       },
                     }}
                   >
@@ -568,6 +571,7 @@ export default function Fonts() {
                                   position: 'absolute',
                                   top: virtualRow.start,
                                   width: '100%',
+                                  transitionDuration: '500ms',
                                 }}
                                 ref={(el) => {
                                   if (el) {
@@ -594,7 +598,13 @@ export default function Fonts() {
                                         variant={'outline'}
                                         className="capitalize"
                                       >
-                                        {sort}
+                                        {sort === 'alpha'
+                                          ? 'A → Z'
+                                          : sort === 'date'
+                                          ? 'Newest'
+                                          : sort === 'style'
+                                          ? 'Styles'
+                                          : sort}
                                       </Badge>
                                     </div>
 
@@ -675,6 +685,18 @@ export default function Fonts() {
                                             Use it
                                           </Button>
                                         )}
+                                        <Button
+                                          size={'sm'}
+                                          onClick={() =>
+                                            toast.warning('Working...', {
+                                              description:
+                                                'This feature is not available yet! We are working on it. SO, Please wait !!!',
+                                            })
+                                          }
+                                        >
+                                          <SquareDashedBottom />
+                                          View
+                                        </Button>
                                       </div>
                                     </div>
                                   </CardContent>

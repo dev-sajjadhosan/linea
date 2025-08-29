@@ -38,9 +38,11 @@ const exampleQueries = [
 export default function PreKeywords({
   setSearch,
   search,
+  inputRef,
 }: {
   setSearch: (search: string) => void
   search: string
+  inputRef: React.RefObject<HTMLInputElement>
 }) {
   return (
     <div>
@@ -56,6 +58,7 @@ export default function PreKeywords({
                 key={index}
                 onClick={() => {
                   setSearch(query)
+                  inputRef.current.value = query
                   toast.success('Search keyword set')
                 }}
                 className={`text-sm px-3 rounded-md py-2.5 capitalize cursor-copy duration-200 border dark:hover:bg-zinc-700  hover:bg-secondary-foreground :hover:text-secondary ${

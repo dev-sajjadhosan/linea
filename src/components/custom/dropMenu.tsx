@@ -4,9 +4,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-//   DropdownMenuSeparator,
+  //   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useSettingStore } from '@/store/settingStore'
 import { Anchor } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -23,6 +24,10 @@ export default function DropMenu({
   paths: MenuProps[]
   IsPath: (path: string) => boolean
 }) {
+  const { homePage } = useSettingStore()
+  const filterPaths =
+    homePage === 'show' ? paths : paths.filter((item) => item.label !== 'home')
+
   return (
     <div className="md:hidden mr-1.5">
       <DropdownMenu>
@@ -32,7 +37,7 @@ export default function DropMenu({
         <DropdownMenuContent className="w-xs p-5">
           <DropdownMenuLabel>Navlist</DropdownMenuLabel>
           {/* <DropdownMenuSeparator /> */}
-          {paths.map((l, i) => (
+          {filterPaths.map((l, i) => (
             <Link key={i} to={l?.path}>
               <DropdownMenuItem
                 className={`${

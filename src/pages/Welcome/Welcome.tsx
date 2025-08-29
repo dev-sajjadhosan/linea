@@ -3,9 +3,14 @@ import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import TooltipBtn from '@/components/custom/Tooltipbtn'
 import { Github, Linkedin, UserStar } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { useSettingStore } from '@/store/settingStore'
 
 export default function Welcome() {
+  const { welcome } = useSettingStore()
+  if (welcome === 'hide') {
+    return <Navigate to={'/fonts'} />
+  }
   return (
     <>
       <div className="flex flex-col items-center justify-center relative h-full">

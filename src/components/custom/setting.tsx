@@ -17,10 +17,12 @@ export default function Setting() {
     theme,
     setTheme,
     homePage,
+    welcome,
     setHomePage,
     setNavbar,
     setReset,
     navbar,
+    setWelcome,
   } = useSettingStore()
   return (
     <>
@@ -105,6 +107,31 @@ export default function Setting() {
                       size={'sm'}
                       variant={homePage === 'hide' ? 'default' : 'ghost'}
                       onClick={() => setHomePage('hide')}
+                    >
+                      Hide
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-lg font-light">Welcome Page</span>
+                  <div className="flex  gap-2.5">
+                    <Button
+                      size={'sm'}
+                      variant={welcome === 'show' ? 'default' : 'ghost'}
+                      onClick={() => setWelcome('show')}
+                    >
+                      Show
+                    </Button>
+                    <Button
+                      size={'sm'}
+                      variant={welcome === 'hide' ? 'default' : 'ghost'}
+                      onClick={() => {
+                        setWelcome('hide')
+                        toast.warning('Please Read it', {
+                          description: `You have hide the Default Page . So, now if you visit then it will not show again. But, if you again switch to Show then it will show again!`,
+                          duration: 8000,
+                        })
+                      }}
                     >
                       Hide
                     </Button>
