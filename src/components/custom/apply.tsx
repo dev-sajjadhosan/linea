@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import CodePre from '@/components/custom/CodePre'
-import TooltipBtn from '@/components/custom/Tooltipbtn'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import CodePre from "@/components/custom/CodePre";
+import TooltipBtn from "@/components/custom/Tooltipbtn";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useGenerateGoogleFontsUrl } from '@/hooks/useGenerateGoogleFontsUrl'
-import { useFontStore } from '@/store/FontStore'
-import { useMyStore } from '@/store/myStore'
-import { generateFontSnippets } from '@/utils/generateFontSnippets'
-import { generateTailwindSnippets } from '@/utils/generateTailwindSnippets'
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGoogleFontsUrl } from "@/hooks/useGenerateGoogleFontsUrl";
+
+import { useFontStore } from "@/store/FontStore";
+import { useMyStore } from "@/store/myStore";
+import { generateFontSnippets } from "@/utils/generateFontSnippets";
+import { generateTailwindSnippets } from "@/utils/generateTailwindSnippets";
 import {
   ArrowDownToLine,
   Box,
@@ -26,62 +27,74 @@ import {
   RemoveFormatting,
   Share2,
   Trash2,
-} from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Apply() {
-  const { useFonts, useRemoveAll, useRemoveFont } = useMyStore()
-  const { css, tailwind } = generateTailwindSnippets(useFonts)
-  const text = useFontStore((s) => s.text)
-  const url = useGenerateGoogleFontsUrl(useFonts)
-  const snippets = generateFontSnippets(useFonts)
+  const { useFonts, useRemoveAll, useRemoveFont } = useMyStore();
+  const { css, tailwind } = generateTailwindSnippets(useFonts);
+  const text = useFontStore((s) => s.text);
+  const url = useGoogleFontsUrl(useFonts, true);
+  const snippets = generateFontSnippets(useFonts);
 
-  const [isCode, setIsCode] = useState(false)
+  const [isCode, setIsCode] = useState(false);
 
   useEffect(() => {
     if (!useFonts.length) {
-      setIsCode(false)
+      setIsCode(false);
     }
-  }, [useFonts])
+  }, [useFonts]);
 
   return (
     <>
       <Dialog>
         <DialogTrigger>
-          <Button size={'sm'}>
-            <Box /> Apply
-          </Button>
+          <div className="relative">
+            {useFonts.length === 0 ? (
+              ""
+            ) : (
+              <Badge
+                className="absolute -top-3 -right-3 rounded-full font-medium"
+                variant={"default"}
+              >
+                {useFonts.length < 9 ? "0" + useFonts.length : useFonts.length}
+              </Badge>
+            )}
+            <Button size={"sm"}>
+              <Box /> Apply
+            </Button>
+          </div>
         </DialogTrigger>
         <DialogContent className="p-9 [&>button]:hidden !w-5xl">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <h3 className="text-xl">Embed Typography on your Project</h3>
               <div className="flex items-center gap-2.5">
-                <Badge variant={'secondary'}>{useFonts.length} Fonts</Badge>
+                <Badge variant={"secondary"}>{useFonts.length} Fonts</Badge>
                 <Button
                   onClick={() => setIsCode(!isCode)}
-                  variant={isCode ? 'secondary' : 'default'}
+                  variant={isCode ? "secondary" : "default"}
                   disabled={!useFonts.length}
-                  size={'sm'}
+                  size={"sm"}
                 >
-                  <Braces className={`${isCode && 'animate-bounce'}`} />
+                  <Braces className={`${isCode && "animate-bounce"}`} />
                   Embed Code
                 </Button>
               </div>
             </DialogTitle>
             <DialogDescription>
               <div className="flex items-center justify-end gap-2.5 mt-3">
-                <Button size={'sm'} variant={'ghost'} disabled={!url}>
+                <Button size={"sm"} variant={"ghost"} disabled={!url}>
                   <ArrowDownToLine />
                   Download All
                 </Button>
                 <Button
-                  size={'sm'}
-                  variant={'ghost'}
+                  size={"sm"}
+                  variant={"ghost"}
                   onClick={() => {
-                    useRemoveAll()
-                    toast.success('Yo! Removed All.')
+                    useRemoveAll();
+                    toast.success("Yo! Removed All.");
                   }}
                   disabled={!useFonts.length}
                 >
@@ -89,8 +102,8 @@ export default function Apply() {
                   Remove All
                 </Button>
                 <Button
-                  size={'sm'}
-                  variant={'ghost'}
+                  size={"sm"}
+                  variant={"ghost"}
                   disabled={!useFonts.length}
                 >
                   <Share2 />
@@ -169,7 +182,7 @@ export default function Apply() {
                             <CardContent>
                               <div className="flex items-center justify-between">
                                 <h3 className="text-2xl">{font?.family}</h3>
-                                <Badge variant={'secondary'}>Dev_Mode</Badge>
+                                <Badge variant={"secondary"}>Dev_Mode</Badge>
                               </div>
                               <p className="text-xl text-zinc-400">{text}</p>
                               <div className="flex items-center justify-end gap-2.5 mt-2">
@@ -177,8 +190,8 @@ export default function Apply() {
                                   label="Trash"
                                   icon={<Link2Off />}
                                   action={() => {
-                                    useRemoveFont(font?.family)
-                                    toast.success('Yo! Removed Select Font.')
+                                    useRemoveFont(font?.family);
+                                    toast.success("Yo! Removed Select Font.");
                                   }}
                                 />
                                 <TooltipBtn
@@ -186,8 +199,8 @@ export default function Apply() {
                                   icon={<ArrowDownToLine />}
                                   action={() => {
                                     toast.warning(
-                                      'Yo! Downloaded features not available.',
-                                    )
+                                      "Yo! Downloaded features not available."
+                                    );
                                   }}
                                 />
                               </div>
@@ -204,5 +217,5 @@ export default function Apply() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

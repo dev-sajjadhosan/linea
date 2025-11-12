@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import TooltipBtn from '@/components/custom/Tooltipbtn'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import TooltipBtn from "@/components/custom/Tooltipbtn";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { useFontStore } from '@/store/FontStore'
-import { useMyStore } from '@/store/myStore'
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { useFontStore } from "@/store/FontStore";
+import { useMyStore } from "@/store/myStore";
 import {
   ArrowBigDownDash,
   Link2Off,
@@ -21,9 +21,9 @@ import {
   TextSearch,
   Trash2,
   Link2,
-} from 'lucide-react'
-import { toast } from 'sonner'
-import { Link } from 'react-router-dom'
+} from "lucide-react";
+import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function MyStore() {
   const {
@@ -33,26 +33,38 @@ export default function MyStore() {
     useAddFont,
     useHasFont,
     useRemoveFont,
-  } = useMyStore()
-  const text = useFontStore((s) => s.text)
+  } = useMyStore();
+  const text = useFontStore((s) => s.text);
   return (
     <>
       <Dialog>
         <DialogTrigger>
-          <TooltipBtn label="My Store" icon={<Store />} />
+          <div className="relative">
+            {myFonts.length === 0 ? (
+              ""
+            ) : (
+              <Badge
+                className="absolute -top-3 -left-3 rounded-full font-medium"
+                variant={"default"}
+              >
+                {myFonts.length < 9 ? "0" + myFonts.length : myFonts.length}
+              </Badge>
+            )}
+            <TooltipBtn label="My Store" icon={<Store />} />
+          </div>
         </DialogTrigger>
         <DialogContent className="p-9 [&>button]:hidden md:w-5xl!">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <h3 className="text-xl">My Store</h3>
               <div className="flex items-center gap-1.5">
-                <Badge variant={'secondary'}>{myFonts.length} Fonts</Badge>
+                <Badge variant={"secondary"}>{myFonts.length} Fonts</Badge>
                 <TooltipBtn
                   label="Trash All"
                   icon={<Trash2 />}
                   action={() => {
-                    removeAll()
-                    toast.success('Yo! Removed All Fonts.')
+                    removeAll();
+                    toast.success("Yo! Removed All Fonts.");
                   }}
                   disable={myFonts.length > 0 ? false : true}
                 />
@@ -63,7 +75,7 @@ export default function MyStore() {
                   variant="secondary"
                   disable={myFonts.length >= 2 ? false : true}
                   action={() => {
-                    toast.warning('Yo! Export features not available.')
+                    toast.warning("Yo! Export features not available.");
                   }}
                 />
               </div>
@@ -82,8 +94,8 @@ export default function MyStore() {
                     <p className="text-lg text-center mb-2.5">
                       look like you don't have any fonts in your store yet.
                     </p>
-                    <Link to={'/fonts'}>
-                      <Button variant={'outline'}>
+                    <Link to={"/fonts"}>
+                      <Button variant={"outline"}>
                         <TextSearch />
                         Find Some
                       </Button>
@@ -100,7 +112,7 @@ export default function MyStore() {
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                           <h3 className="text-xl">{font.family}</h3>
-                          <Badge variant={'secondary'}>{font.category}</Badge>
+                          <Badge variant={"secondary"}>{font.category}</Badge>
                         </div>
                         <p className="text-sm">{text}</p>
                       </div>
@@ -114,8 +126,8 @@ export default function MyStore() {
                             label="Remove Select"
                             icon={<Link2Off />}
                             action={() => {
-                              useRemoveFont(font.family)
-                              toast.success('Yo! Removed from Select.')
+                              useRemoveFont(font.family);
+                              toast.success("Yo! Removed from Select.");
                             }}
                           />
                         ) : (
@@ -123,8 +135,8 @@ export default function MyStore() {
                             label="Use it"
                             icon={<Link2 />}
                             action={() => {
-                              useAddFont(font)
-                              toast.success('Yo! Added Select Font.')
+                              useAddFont(font);
+                              toast.success("Yo! Added Select Font.");
                             }}
                             variant="secondary"
                           />
@@ -133,8 +145,8 @@ export default function MyStore() {
                           label="Remove"
                           icon={<Trash2 />}
                           action={() => {
-                            removeFont(font.family)
-                            toast.success('Yo! Removed from Store.')
+                            removeFont(font.family);
+                            toast.success("Yo! Removed from Store.");
                           }}
                         />
                       </div>
@@ -147,5 +159,5 @@ export default function MyStore() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
